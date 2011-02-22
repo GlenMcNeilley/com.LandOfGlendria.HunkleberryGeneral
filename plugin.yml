@@ -1,0 +1,11 @@
+name: HunkleberryGeneral
+
+main: com.LandOfGlendria.HunkleberryGeneral.HunkleberryGeneral
+
+version: 0.1
+
+website: TBD
+
+description: Friendly general command plugin.
+
+author: Glen McNeilley
