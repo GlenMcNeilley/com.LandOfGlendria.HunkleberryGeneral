@@ -3,17 +3,14 @@ package com.LandOfGlendria.HunkleberryGeneral;
 import java.util.logging.Logger;
 import org.bukkit.entity.Player;
 
-public class HGMessageManagement
-{
+public class HGMessageManagement {
 
 	private static final Logger log = Logger.getLogger("Minecraft");
 
-	public HGMessageManagement()
-	{
+	public HGMessageManagement() {
 	}
 
-	public String[] messageSegmenter(String message, int notUSed)
-	{
+	public String[] messageSegmenter(String message, int notUSed) {
 		char chars[] = message.toCharArray();
 		int defaultWidth = HGStatics.MAX_MESSAGE_LENGTH.intValue();
 		int minLength = Math.abs(defaultWidth / 2);
@@ -26,18 +23,15 @@ public class HGMessageManagement
 		int lastPossible = 0;
 		String messages[] = new String[lastChar / minLength + 1];
 		String lastColor = new String();
-		while(lookingAtChar < lastChar) 
-		{
+		while (lookingAtChar < lastChar) {
 			startingAt = lookingAtChar;
 			visibleCount = 0;
 			lastPossible = lookingAtChar;
 			lastGood = lookingAtChar;
 			StringBuffer currentMessage = new StringBuffer();
 			currentMessage.append(lastColor);
-			while(visibleCount < defaultWidth + 1 && lookingAtChar < lastChar + 1) 
-			{
-				switch(chars[lookingAtChar])
-				{
+			while (visibleCount < defaultWidth + 1 && lookingAtChar < lastChar + 1) {
+				switch (chars[lookingAtChar]) {
 				case 32: // ' '
 					lastGood = lookingAtChar;
 					visibleCount++;
@@ -62,7 +56,7 @@ public class HGMessageManagement
 					lookingAtChar++;
 					break;
 
-				case 167: 
+				case 167:
 					lastColor = String.copyValueOf(chars, lookingAtChar, 2);
 					lookingAtChar += 2;
 					break;
@@ -74,17 +68,14 @@ public class HGMessageManagement
 					break;
 				}
 			}
-			if(lookingAtChar >= lastChar)
-			{
+			if (lookingAtChar >= lastChar) {
 				lastGood = lastChar;
 				lastPossible = lastChar;
 			}
-			if(visibleCount > minLength)
-			{
+			if (visibleCount > minLength) {
 				currentMessage.append(chars, startingAt, (lastGood - startingAt) + 1);
 				lookingAtChar = lastGood + 1;
-			} else
-			{
+			} else {
 				currentMessage.append(chars, startingAt, (lastPossible - startingAt) + 1);
 				lookingAtChar = lastPossible + 1;
 			}
@@ -94,21 +85,16 @@ public class HGMessageManagement
 		return messages;
 	}
 
-	public void sendSegmented(Player player, String message)
-	{
-		if(message.length() <= HGStatics.MAX_MESSAGE_LENGTH.intValue())
-		{
+	public void sendSegmented(Player player, String message) {
+		if (message.length() <= HGStatics.MAX_MESSAGE_LENGTH.intValue()) {
 			player.sendMessage(message);
-		} else
-		{
+		} else {
 			String lines[] = messageSegmenter(message, 0);
 			String as[];
 			int j = (as = lines).length;
-			for(int i = 0; i < j; i++)
-			{
+			for (int i = 0; i < j; i++) {
 				String line = as[i];
-				if(line != null)
-				{
+				if (line != null) {
 					player.sendMessage(line);
 				}
 			}
@@ -116,16 +102,21 @@ public class HGMessageManagement
 		}
 	}
 
-	public void sendPositiveMessage(Player player, String message)
-	{
+	public void sendNegativeMessage(Player player, String message) {
+		StringBuffer sb = new StringBuffer();
+		sb.append(HGStatics.ERROR_COLOR);
+		sb.append(message);
+		sendSegmented(player, sb.toString());
+	}
+
+	public void sendPositiveMessage(Player player, String message) {
 		StringBuffer sb = new StringBuffer();
 		sb.append(HGStatics.POSITIVE_COLOR);
 		sb.append(message);
 		sendSegmented(player, sb.toString());
 	}
 
-	public String formatInvalidArgs(String arg, String message)
-	{
+	public String formatInvalidArgs(String arg, String message) {
 		StringBuffer sb = new StringBuffer();
 		sb.append("Invalid Argument [");
 		sb.append(arg);
@@ -135,8 +126,7 @@ public class HGMessageManagement
 		return sb.toString();
 	}
 
-	public String formatInvalidArgs(int arg, String message)
-	{
+	public String formatInvalidArgs(int arg, String message) {
 		StringBuffer sb = new StringBuffer();
 		sb.append("Invalid Argument [");
 		sb.append((new Integer(arg)).toString());
@@ -146,8 +136,7 @@ public class HGMessageManagement
 		return sb.toString();
 	}
 
-	public void sendColorUsage(Player player, String command, String arguments)
-	{
+	public void sendColorUsage(Player player, String command, String arguments) {
 		StringBuffer sb = new StringBuffer();
 		sb.append("Usage: ");
 		sb.append(HGStatics.COMMAND_COLOR);
@@ -159,8 +148,7 @@ public class HGMessageManagement
 		sendSegmented(player, sb.toString());
 	}
 
-	public void sendColorErrorUsage(Player player, String error, String command, String arguments, String helpCommand)
-	{
+	public void sendColorErrorUsage(Player player, String error, String command, String arguments, String helpCommand) {
 		sendSegmented(player, (new StringBuilder(String.valueOf(HGStatics.ERROR_COLOR))).append(error).toString());
 		StringBuffer sb = new StringBuffer();
 		sb.append("Usage: ");
@@ -182,8 +170,7 @@ public class HGMessageManagement
 		sendSegmented(player, sb.toString());
 	}
 
-	public void sendColorHelp(Player player, HGCommandData command, boolean allowed)
-	{
+	public void sendColorHelp(Player player, HGCommandData command, boolean allowed) {
 		StringBuffer sb = new StringBuffer();
 		sb.append("Usage: ");
 		sb.append(HGStatics.COMMAND_COLOR);
@@ -196,40 +183,32 @@ public class HGMessageManagement
 		sb.append(HGStatics.NO_COLOR);
 		sb.append(command.getCommandUsage());
 		sb.append(" ");
-		if(command.getServerAllowed().booleanValue())
-		{
-			if(allowed)
-			{
+		if (command.getServerAllowed().booleanValue()) {
+			if (allowed) {
 				sb.append(HGStatics.POSITIVE_COLOR);
 				sb.append("This command is enabled and you have permission to use it.");
-			} else
-			{
+			} else {
 				sb.append(HGStatics.ERROR_COLOR);
 				sb.append("This command is enabled but you don't have permission to use it.");
 			}
-		} else
-		{
+		} else {
 			sb.append(HGStatics.ERROR_COLOR);
 			sb.append(" This command is disabled.");
 		}
 		sendSegmented(player, sb.toString());
 	}
 
-	public String concatinateRemainingArgs(String stringArray[], int index)
-	{
+	public String concatinateRemainingArgs(String stringArray[], int index) {
 		int indexCount = 0;
 		String message = new String("");
 		String as[];
 		int j = (as = stringArray).length;
-		for(int i = 0; i < j; i++)
-		{
+		for (int i = 0; i < j; i++) {
 			String cat = as[i];
-			if(indexCount > index)
-			{
+			if (indexCount > index) {
 				message = message.concat(" ");
 			}
-			if(indexCount >= index)
-			{
+			if (indexCount >= index) {
 				message = message.concat(cat);
 			}
 			indexCount++;
@@ -238,18 +217,15 @@ public class HGMessageManagement
 		return message;
 	}
 
-	public void info(String message)
-	{
+	public void info(String message) {
 		log.info((new StringBuilder(String.valueOf(HGStatics.LOG_PREFIX))).append(message).toString());
 	}
 
-	public void warning(String message)
-	{
+	public void warn(String message) {
 		log.info((new StringBuilder(String.valueOf(HGStatics.LOG_PREFIX))).append(message).toString());
 	}
 
-	public void severe(String message)
-	{
+	public void severe(String message) {
 		log.info((new StringBuilder(String.valueOf(HGStatics.LOG_PREFIX))).append(message).toString());
 	}
 
