@@ -14,7 +14,7 @@ public class HGPluginManagement {
 	public HGPluginManagement(Plugin plugin) {
 		this.plugin = plugin;
 	}
-	
+
 	public String[] listPlugins() {
 		String[] messages = new String[2];
 		Plugin[] pluginList = plugin.getServer().getPluginManager().getPlugins();
@@ -24,9 +24,9 @@ public class HGPluginManagement {
 		pluginInfo.append(" [enabled]");
 		pluginInfo.append(HGStatics.ERROR_COLOR);
 		pluginInfo.append(" [disabled]");
-		messages[0]=pluginInfo.toString();
+		messages[0] = pluginInfo.toString();
 		pluginInfo = new StringBuilder();
-		for(Plugin p : pluginList){
+		for (Plugin p : pluginList) {
 			if (p.isEnabled()) {
 				pluginInfo.append(HGStatics.NO_COLOR);
 				pluginInfo.append("[");
@@ -45,7 +45,7 @@ public class HGPluginManagement {
 			pluginInfo.append(HGStatics.NO_COLOR);
 			pluginInfo.append("] ");
 		}
-		messages[1]=pluginInfo.toString();
+		messages[1] = pluginInfo.toString();
 		return messages;
 	}
 
@@ -61,7 +61,7 @@ public class HGPluginManagement {
 		}
 		return null;
 	}
-	
+
 	public String enablePlugin(String pluginName) {
 		final Plugin pluginToEnable = plugin.getServer().getPluginManager().getPlugin(pluginName);
 		if (pluginToEnable == null) {
@@ -73,7 +73,7 @@ public class HGPluginManagement {
 			return enableInThread(pluginToEnable);
 		}
 	}
-	
+
 	private String disableInThread(final Plugin plugin) {
 		try {
 			Thread disableThread = new Thread() {
@@ -86,7 +86,7 @@ public class HGPluginManagement {
 		}
 		return null;
 	}
-	
+
 	public String disablePlugin(String pluginName) {
 		final Plugin pluginToDisable = plugin.getServer().getPluginManager().getPlugin(pluginName);
 		if (pluginToDisable == null) {
@@ -98,7 +98,7 @@ public class HGPluginManagement {
 			return disableInThread(pluginToDisable);
 		}
 	}
-	
+
 	public String loadPlugin(String pluginPath) {
 		Plugin pluginToLoad = null;
 		PluginManager pm = plugin.getServer().getPluginManager();
@@ -110,7 +110,7 @@ public class HGPluginManagement {
 			pluginToLoad = pm.loadPlugin(pluginFile);
 		} catch (InvalidPluginException e) {
 			return ("Unable to load Plugin: Invalid Plugin");
-		} catch (InvalidDescriptionException e){
+		} catch (InvalidDescriptionException e) {
 			return ("Unable to load Plugin: Invalid Plugin Description");
 		}
 		if (pluginToLoad == null) {
@@ -120,7 +120,6 @@ public class HGPluginManagement {
 	}
 
 	public void clearAllPlugins() {
-		
+		plugin.getServer().getPluginManager().clearPlugins();
 	}
 }
-
