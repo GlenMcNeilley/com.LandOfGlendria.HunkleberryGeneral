@@ -12,7 +12,6 @@ import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.entity.*;
 import org.bukkit.plugin.Plugin;
 
-
 public class HGWorldManagement {
 
 	private HGMessageManagement msg;
@@ -55,7 +54,7 @@ public class HGWorldManagement {
 				CraftItem item = (CraftItem) entity;
 				synchronized (item) {
 					EntityItem entityItem = (EntityItem) item.getHandle();
-					entityItem.q();
+					entityItem.C();
 				}
 				killcount++;
 			}
@@ -189,19 +188,23 @@ public class HGWorldManagement {
 	
 
 	public String setSpawnLocation(Player player, World world, int x, int y, int z) {
-		((CraftWorld) world).getHandle().spawnX = x;
-		((CraftWorld) world).getHandle().spawnY = y;
-		((CraftWorld) world).getHandle().spawnZ = z;
+        CraftWorld cworld=(CraftWorld)world;
+        net.minecraft.server.WorldServer wserver = cworld.getHandle();
+        net.minecraft.server.WorldData wdata = wserver.q;
+        wdata.a(x, y, z);
 		msg.sendPositiveMessage(player, ("Set spawn point in " + world.getName() + " to (" + x + "," + y + "," + z + ")."));
 		return null;
 	}
+	
+	public String getSpawnLocation(Player player, World world) {
 
-	public String leap(Player player, Location location) {
-		msg.sendPositiveMessage(player, ("Leaping to " + location.getWorld().getName() + " (" +
-				(int) location.getX() + "," + 
-				(int) location.getY() + "," + 
-				(int) location.getZ() + ")."));
-		player.teleportTo(location);
+        CraftWorld cworld=(CraftWorld)world;
+        net.minecraft.server.WorldServer wserver = cworld.getHandle();
+        int x1 = wserver.q.c();
+        int y1 = wserver.q.d();
+        int z1 = wserver.q.e();
+
+		msg.sendPositiveMessage(player, Integer.toString(x1+y1+z1));
 		return null;
 	}
 }
