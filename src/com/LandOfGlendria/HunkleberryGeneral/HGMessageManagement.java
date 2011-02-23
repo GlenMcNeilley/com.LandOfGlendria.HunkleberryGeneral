@@ -170,6 +170,20 @@ public class HGMessageManagement {
 		sendSegmented(player, sb.toString());
 	}
 
+	public void sendCommandList(Player player,HGCommandData cmd) {
+		StringBuffer sb = new StringBuffer();
+		for (HGCommandData command : HGCommandData.values()) {
+			sb.append(HGStatics.POSITIVE_COLOR);
+			sb.append("[");
+			sb.append(HGStatics.WARNING_COLOR);
+			sb.append("/");
+			sb.append(command.getCommand());
+			sb.append(HGStatics.POSITIVE_COLOR);
+			sb.append("] ");
+		}
+		sendPositiveMessage(player,sb.toString());
+		return;
+	}
 	public void sendColorHelp(Player player, HGCommandData command, boolean allowed) {
 		StringBuffer sb = new StringBuffer();
 		sb.append("Usage: ");

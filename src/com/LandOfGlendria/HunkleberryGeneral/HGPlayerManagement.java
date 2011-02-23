@@ -7,15 +7,19 @@ import java.util.logging.Logger;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.craftbukkit.CraftWorld;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 
 public class HGPlayerManagement {
 
 	@SuppressWarnings("unused")
 	private final Logger log = Logger.getLogger("Minecraft");
+	private Plugin plugin;
 	private HGMessageManagement msg;
 
-	public HGPlayerManagement(HGMessageManagement msg) {
+	public HGPlayerManagement(Plugin plugin,HGMessageManagement msg) {
+		this.plugin = plugin;
 		this.msg = msg;
 	}
 
@@ -90,15 +94,90 @@ public class HGPlayerManagement {
 	}
 
 
-	public String leap(Player player, Location location) {
-		msg.sendPositiveMessage(player, ("Leaping to " + location.getWorld().getName() + " (" +
-				(int) location.getX() + "," + 
-				(int) location.getY() + "," + 
-				(int) location.getZ() + ")."));
-		player.teleportTo(location);
+	public String leap(Player sender, Player receiver, String[] commandArray) {
+
+		Server server = plugin.getServer();
+		
+		if(receiver == null) {
+			receiver = sender;
+		}
+		
+		int argumentCount = 0;
+		World leapWorld = null;
+		Player leapPlayer = null;
+		Double leapX = null;
+		Integer leapY = null;
+		Double leapZ = null;
+		Location leapLocation = null;
+		String argument = commandArray[0];
+		for (int i = 1; i < commandArray.length; i++) {
+			argument = commandArray[i];
+			if (leapWorld == null) {
+				leapWorld = server.getWorld(argument);
+				if (leapWorld != null) {
+					continue;
+				}
+			}
+			if (leapPlayer == null && leapLocation == null) {
+				leapPlayer = server.getPlayer(argument);
+				if (leapPlayer != null) {
+					leapLocation = leapPlayer.getLocation();
+					leapWorld = leapLocation.getWorld();
+					continue;
+				}
+			}
+			if (leapLocation == null && commandArray.length - argumentCount >= 2) {
+				try {
+					leapX = (double)Integer.valueOf(Integer.parseInt(commandArray[i]));
+					leapY = Integer.valueOf(Integer.parseInt(commandArray[i + 1]));
+					leapZ = (double)Integer.valueOf(Integer.parseInt(commandArray[i + 2]));
+				} catch (NumberFormatException e) {
+					continue;
+				}
+				i += 3;
+				leapLocation = new Location(sender.getWorld(), leapX.intValue(), leapY.intValue(), leapZ.intValue());
+			} else {
+				return msg.formatInvalidArgs(commandArray[i], "Invalid argument, not a player, world, or complete coordinate triplet");
+			}
+		}
+
+		if (leapWorld == null) {
+			leapWorld = sender.getWorld();
+		}
+		if (leapLocation == null) {
+	        CraftWorld cworld=(CraftWorld)leapWorld;
+	        net.minecraft.server.WorldServer wserver = cworld.getHandle();
+	        leapX = wserver.q.c()+.5;
+	        leapY = wserver.q.d();
+	        leapZ = wserver.q.e()+.5;
+			leapLocation = new Location(leapWorld, leapX, leapY, leapZ);
+		} else {
+			leapLocation.setWorld(leapWorld);
+		}
+		
+		//return playerManager.leap(player, leapLocation);
+		
+		
+		if (sender == receiver) {
+		
+		msg.sendPositiveMessage(sender, ("Leaping to " + leapLocation.getWorld().getName() + " (" +
+				(int) leapLocation.getX() + "," + 
+				(int) leapLocation.getY() + "," + 
+				(int) leapLocation.getZ() + ")."));
+		} else {
+			msg.sendPositiveMessage(sender, ("Flinging " + receiver.getName() + " to " + leapLocation.getWorld().getName() + " (" +
+					(int) leapLocation.getX() + "," + 
+					(int) leapLocation.getY() + "," + 
+					(int) leapLocation.getZ() + ")."));
+		msg.sendPositiveMessage(receiver, ("You have been flung by " + sender.getName() + "."));
+		}
+		leapLocation.setPitch(sender.getLocation().getPitch());
+		leapLocation.setYaw(sender.getLocation().getYaw());
+		receiver.teleportTo(leapLocation);
 		return null;
 	}
 	
+
 	public String teleport(Player player, double x, double y, double z) {
 		player.teleportTo(new Location(player.getWorld(), x, y, z));
 		return null;

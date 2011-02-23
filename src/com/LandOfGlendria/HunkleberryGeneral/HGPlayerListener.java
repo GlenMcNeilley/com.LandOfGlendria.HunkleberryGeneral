@@ -33,12 +33,6 @@ public class HGPlayerListener extends PlayerListener {
 		if (command == null) {
 			return;
 		}
-		if (event.isCancelled()) {
-			log.warning((new StringBuilder(String.valueOf(HunkleberryGeneral.pdfFile.getName()))).append(": /").append(base)
-					.append(" Another plugin is listening for this command, consider creating an alias.").toString());
-		} else {
-			event.setCancelled(true);
-		}
 		if (!command.getServerAllowed().booleanValue()) {
 			return;
 		}

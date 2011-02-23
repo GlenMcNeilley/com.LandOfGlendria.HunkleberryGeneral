@@ -12,8 +12,10 @@ import org.bukkit.inventory.ItemStack;
 public class HGInventoryManagement {
 
 	private final ItemStack emptyStack;
+	private HGMessageManagement msg;
 
-	public HGInventoryManagement() {
+	public HGInventoryManagement(HGMessageManagement msg) {
+		this.msg = msg;
 		emptyStack = new ItemStack(Material.AIR, 0);
 	}
 
@@ -42,39 +44,48 @@ public class HGInventoryManagement {
 		player.getInventory().setLeggings(emptyStack);
 	}
 
-	public void listPlayerInventory(Player player) {
-		ItemStack stacks[] = player.getInventory().getContents();
+	public void listPlayerInventory(Player player,Player resolvedPlayer) {
+		ItemStack stacks[] = resolvedPlayer.getInventory().getContents();
 		int index = 0;
 		ItemStack aitemstack[];
+		StringBuffer sb = new StringBuffer();
 		int j = (aitemstack = stacks).length;
 		for (int i = 0; i < j; i++) {
 			ItemStack stack = aitemstack[i];
 			if (stack.getAmount() > 0) {
-				player.sendMessage((new StringBuilder(String.valueOf(index))).append(stack.toString()).toString());
+				sb.append("[");
+				sb.append(index+1);
+				sb.append("][");
+				sb.append(HGStatics.WARNING_COLOR);
+				sb.append(stack.getType().toString());
+				sb.append(HGStatics.NO_COLOR);
+				sb.append("x");
+				sb.append(HGStatics.ERROR_COLOR);
+				sb.append(stack.getAmount());
+				sb.append(HGStatics.POSITIVE_COLOR);
+				sb.append("] ");
 			}
 			index++;
 		}
-
+		msg.info(sb.toString());
+		msg.sendPositiveMessage(player,sb.toString());
 	}
 
-	public int getAvailableSpace(Player player, int item, byte data) {
+	public int getAvailableSpace(Player player, int item) {
 		CraftItemStack inventoryStacks[] = (CraftItemStack[]) player.getInventory().getContents();
-		CraftItemStack stackToAdd = new CraftItemStack(item, 1, (short) 0, Byte.valueOf(data));
+		CraftItemStack stackToAdd = new CraftItemStack(item, 1);
 		int available = 0;
 		int index = 0;
 		CraftItemStack acraftitemstack[];
 		int j = (acraftitemstack = inventoryStacks).length;
 		for (int i = 0; i < j; i++) {
 			CraftItemStack inventoryStack = acraftitemstack[i];
-			byte inventoryData = 0;
-			if (inventoryStack.getData() != null) {
-				inventoryData = inventoryStack.getData().getData();
-			}
 			if (inventoryStack.getAmount() == 0 && inventoryStack.getType() == Material.AIR) {
 				available += stackToAdd.getMaxStackSize();
-			} else if (inventoryStack.getType() == stackToAdd.getType() && inventoryData == data) {
-				available += inventoryStack.getMaxStackSize() - inventoryStack.getAmount();
 			}
+//			else if (inventoryStack.getType() == stackToAdd.getType() && inventoryData == data) {
+//				available += inventoryStack.getMaxStackSize() - inventoryStack.getAmount();
+//			}
 			index++;
 		}
 
@@ -86,7 +97,11 @@ public class HGInventoryManagement {
 	}
 
 	public int addItemToInventory(Player player, int item, int amount, byte data) {
+		if (data == -1) {
+			return addItemToInventory(player,item,amount);
+		} else {
 		return player.getInventory().addItem(new ItemStack[] { new ItemStack(item, amount, (short) 0, Byte.valueOf(data)) }).size();
+		}
 	}
 
 	public int addItemToInventory(Player player, Material mat, int amount) {

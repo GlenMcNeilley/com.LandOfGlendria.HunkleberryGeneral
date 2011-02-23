@@ -229,7 +229,7 @@ public class HGConfig {
 		sb.append("<head>");
 		sb.append("<link href=\"hgcommands.css\" rel=\"stylesheet\" type=\"text/css\" />");
 		sb.append("</head>");
-		sb.append("<body font-type=sans>");
+		sb.append("<body font-type=sans font-size:small>");
 		sb.append("<table border=0>");
 		for (HGCommandData command : HGCommandData.values()) {
 			sb.append("<tr><td colspan=2>&nbsp;</td></tr><tr><td colspan=2 class=command>/");
@@ -258,6 +258,33 @@ public class HGConfig {
 			sb.append("<tr><td align=center>");
 			sb.append(command.getPermissions());
 			sb.append("</td></tr>");
+		}
+
+		sb.append("</table>");
+		sb.append("</body>");
+		sb.append("</html>");
+		return sb.toString();
+	}
+
+	public String writeCommandsToHtmlSimple() {
+		StringBuffer sb = new StringBuffer();
+		sb.append("<html>");
+		sb.append("<head>");
+		sb.append("<body font-type=sans font-size:small>");
+		sb.append("<table border=0>");
+
+		for (HGCommandData command : HGCommandData.values()) {
+			sb.append("<tr><td colspan=2 bgcolor=ffffff>&nbsp;</td></tr>");
+			sb.append("<tr><td bgcolor=ffffff>/");
+			sb.append(command.getCommand());
+			sb.append("</td><td bgcolor=f0f0f0>");
+			sb.append(command.getCommandArgs());
+			sb.append("</td></tr><tr><td align=center>");
+			sb.append("</td><td valign=top align=left bgcolor=c0c0c0>");
+			sb.append("Usage: ");
+			sb.append(command.getCommandUsage());
+			sb.append("</td></tr>");
+
 		}
 
 		sb.append("</table>");
