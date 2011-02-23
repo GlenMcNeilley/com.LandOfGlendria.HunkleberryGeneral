@@ -2,20 +2,25 @@ package com.LandOfGlendria.HunkleberryGeneral;
 
 import java.io.File;
 
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.InvalidDescriptionException;
 import org.bukkit.plugin.InvalidPluginException;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 
+import com.LandOfGlendria.HunkleberryGeneral.HGMessageManagement;
+
 public class HGPluginManagement {
 
-	private Plugin plugin = null;
-
-	public HGPluginManagement(Plugin plugin) {
+	private Plugin plugin;
+	private HGMessageManagement msg;
+	
+	public HGPluginManagement(Plugin plugin,HGMessageManagement msg) {
 		this.plugin = plugin;
+		this.msg = msg;
 	}
 
-	public String[] listPlugins() {
+	public void listPlugins(Player player) {
 		String[] messages = new String[2];
 		Plugin[] pluginList = plugin.getServer().getPluginManager().getPlugins();
 		StringBuilder pluginInfo = new StringBuilder();
@@ -46,7 +51,8 @@ public class HGPluginManagement {
 			pluginInfo.append("] ");
 		}
 		messages[1] = pluginInfo.toString();
-		return messages;
+		msg.sendPositiveMessage(player,messages[1]);
+		msg.sendPositiveMessage(player,messages[2]);
 	}
 
 	private String enableInThread(final Plugin plugin) {
@@ -92,7 +98,7 @@ public class HGPluginManagement {
 		if (pluginToDisable == null) {
 			return ("Plugin " + pluginName + " not loaded and cannot be disabled.");
 		}
-		if (pluginToDisable.isEnabled()) {
+		if (!pluginToDisable.isEnabled()) {
 			return ("Plugin already disabled.");
 		} else {
 			return disableInThread(pluginToDisable);
