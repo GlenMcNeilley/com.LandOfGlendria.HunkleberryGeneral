@@ -1,6 +1,8 @@
 package com.LandOfGlendria.HunkleberryGeneral;
 
 import java.util.logging.Logger;
+
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 public class HGMessageManagement {
@@ -229,6 +231,20 @@ public class HGMessageManagement {
 		}
 
 		return message;
+	}
+
+	public String sendColorList(Player player) {
+		StringBuffer sb = new StringBuffer();
+		int indexCount = 0;	
+		for (ChatColor color : ChatColor.values()) {
+			sb.append(color);
+			sb.append("[");
+			sb.append(indexCount);
+			sb.append("] ");
+			indexCount++;
+		}
+		sendPositiveMessage(player,sb.toString());
+		return null;
 	}
 
 	public void info(String message) {

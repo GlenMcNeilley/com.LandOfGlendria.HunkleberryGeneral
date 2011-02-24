@@ -292,4 +292,21 @@ public class HGConfig {
 		sb.append("</html>");
 		return sb.toString();
 	}
+
+	public String writeCommandsToBukkit() {
+		StringBuffer sb = new StringBuffer();
+		for (HGCommandData command : HGCommandData.values()) {
+			sb.append("[LIST]\n");
+			sb.append("[*][FONT=helvetica][SIZE=3][COLOR=rgb(51, 102, 255)]/");
+			sb.append(command.getCommand());
+			sb.append("[/COLOR][/SIZE][/FONT][SIZE=3]    [FONT=helvetica][COLOR=rgb(51, 153, 102)]");
+			sb.append(command.getCommandArgs());
+			sb.append("[/COLOR][/FONT][/SIZE]\n");
+			sb.append("[INDENT=1][FONT=helvetica][SIZE=3][COLOR=rgb(0, 0, 0)]    Usage: ");
+			sb.append(command.getCommandUsage());
+			sb.append("[/COLOR][/SIZE][/FONT][/INDENT]\n");
+			sb.append("[/LIST]\n");
+		}
+		return sb.toString();
+	}
 }

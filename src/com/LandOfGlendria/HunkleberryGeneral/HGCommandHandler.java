@@ -505,11 +505,24 @@ public class HGCommandHandler {
 			}
 			return null;
 		}
+		
+		if (cmd == HGCommandData.COLOR_CHART) {
+			log.info(msg.sendColorList(player));
+			return null;
+		}
+		
 		if (cmd == HGCommandData.WRITE_COMMAND_HTML) {
 			log.info(config.writeCommandsToHtmlSimple());
 			return null;
-		} else {
+		} 
+		
+		if (cmd == HGCommandData.WRITE_COMMAND_BUKKIT) {
+			log.info(config.writeCommandsToBukkit());
 			return null;
 		}
+		
+		
+		return null;
+		
 	}
 }
