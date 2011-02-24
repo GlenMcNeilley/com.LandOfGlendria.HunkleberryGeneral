@@ -1,7 +1,5 @@
 package com.LandOfGlendria.HunkleberryGeneral;
 
-//TODO get list of stand-on-able blocks
-
 import java.util.*;
 import java.util.logging.Logger;
 import org.bukkit.*;
@@ -18,7 +16,7 @@ public class HGPlayerManagement {
 	private Plugin plugin;
 	private HGMessageManagement msg;
 
-	public HGPlayerManagement(Plugin plugin,HGMessageManagement msg) {
+	public HGPlayerManagement(Plugin plugin, HGMessageManagement msg) {
 		this.plugin = plugin;
 		this.msg = msg;
 	}
@@ -85,7 +83,11 @@ public class HGPlayerManagement {
 			loc = testingBlock.getLocation();
 			loc.setY(height);
 			testingBlock = block.getWorld().getBlockAt(loc);
-			if (testingBlock.getFace(BlockFace.DOWN).getTypeId() != Material.AIR.getId()) {
+			if (HGStatics.DangerBlocks.contains((Byte)((byte)(testingBlock.getFace(BlockFace.DOWN).getTypeId())))) {
+				return null;
+			}
+			if (!HGStatics.AirBlocks.contains((Byte)((byte)(testingBlock.getFace(BlockFace.DOWN).getTypeId()))) && 
+					!HGStatics.DangerBlocks.contains((Byte)((byte)(testingBlock.getFace(BlockFace.DOWN).getTypeId())))) {
 				return testingBlock.getFace(BlockFace.UP);
 			}
 		}
@@ -93,15 +95,14 @@ public class HGPlayerManagement {
 		return null;
 	}
 
-
 	public String leap(Player sender, Player receiver, String[] commandArray) {
 
 		Server server = plugin.getServer();
-		
-		if(receiver == null) {
+
+		if (receiver == null) {
 			receiver = sender;
 		}
-		
+
 		int argumentCount = 0;
 		World leapWorld = null;
 		Player leapPlayer = null;
@@ -128,9 +129,9 @@ public class HGPlayerManagement {
 			}
 			if (leapLocation == null && commandArray.length - argumentCount >= 2) {
 				try {
-					leapX = (double)Integer.valueOf(Integer.parseInt(commandArray[i]));
+					leapX = (double) Integer.valueOf(Integer.parseInt(commandArray[i]));
 					leapY = Integer.valueOf(Integer.parseInt(commandArray[i + 1]));
-					leapZ = (double)Integer.valueOf(Integer.parseInt(commandArray[i + 2]));
+					leapZ = (double) Integer.valueOf(Integer.parseInt(commandArray[i + 2]));
 				} catch (NumberFormatException e) {
 					continue;
 				}
@@ -145,38 +146,33 @@ public class HGPlayerManagement {
 			leapWorld = sender.getWorld();
 		}
 		if (leapLocation == null) {
-	        CraftWorld cworld=(CraftWorld)leapWorld;
-	        net.minecraft.server.WorldServer wserver = cworld.getHandle();
-	        leapX = wserver.q.c()+.5;
-	        leapY = wserver.q.d();
-	        leapZ = wserver.q.e()+.5;
+			CraftWorld cworld = (CraftWorld) leapWorld;
+			net.minecraft.server.WorldServer wserver = cworld.getHandle();
+			leapX = wserver.q.c() + .5;
+			leapY = wserver.q.d();
+			leapZ = wserver.q.e() + .5;
 			leapLocation = new Location(leapWorld, leapX, leapY, leapZ);
 		} else {
 			leapLocation.setWorld(leapWorld);
 		}
-		
-		//return playerManager.leap(player, leapLocation);
-		
-		
+
+		// return playerManager.leap(player, leapLocation);
+
 		if (sender == receiver) {
-		
-		msg.sendPositiveMessage(sender, ("Leaping to " + leapLocation.getWorld().getName() + " (" +
-				(int) leapLocation.getX() + "," + 
-				(int) leapLocation.getY() + "," + 
-				(int) leapLocation.getZ() + ")."));
+
+			msg.sendPositiveMessage(sender, ("Leaping to " + leapLocation.getWorld().getName() + " (" + (int) leapLocation.getX() + ","
+					+ (int) leapLocation.getY() + "," + (int) leapLocation.getZ() + ")."));
 		} else {
-			msg.sendPositiveMessage(sender, ("Flinging " + receiver.getName() + " to " + leapLocation.getWorld().getName() + " (" +
-					(int) leapLocation.getX() + "," + 
-					(int) leapLocation.getY() + "," + 
-					(int) leapLocation.getZ() + ")."));
-		msg.sendPositiveMessage(receiver, ("You have been flung by " + sender.getName() + "."));
+			msg.sendPositiveMessage(sender,
+					("Flinging " + receiver.getName() + " to " + leapLocation.getWorld().getName() + " (" + (int) leapLocation.getX() + ","
+							+ (int) leapLocation.getY() + "," + (int) leapLocation.getZ() + ")."));
+			msg.sendPositiveMessage(receiver, ("You have been flung by " + sender.getName() + "."));
 		}
 		leapLocation.setPitch(sender.getLocation().getPitch());
 		leapLocation.setYaw(sender.getLocation().getYaw());
 		receiver.teleportTo(leapLocation);
 		return null;
 	}
-	
 
 	public String teleport(Player player, double x, double y, double z) {
 		player.teleportTo(new Location(player.getWorld(), x, y, z));
@@ -192,12 +188,9 @@ public class HGPlayerManagement {
 
 	public String stratum(Player player, int strataToJump) {
 		HashSet<Byte> blocks = new HashSet<Byte>();
-		HashSet<Byte> air = new HashSet<Byte>();
 		for (Material mat : Material.values()) {
 			blocks.add(Byte.valueOf((byte) mat.getId()));
 		}
-		air.add(Byte.valueOf((byte) Material.AIR.getId()));
-
 		Location loc = null;
 		if (strataToJump > 0) {
 			List<Block> blockList = player.getLineOfSight(blocks, HGStatics.MAX_DISTANCE);
@@ -209,12 +202,16 @@ public class HGPlayerManagement {
 				if (block.getY() < 3 || block.getY() > 123) {
 					break;
 				}
-				if (solidFound && block.getTypeId() == Material.AIR.getId()) {
+				if (solidFound && HGStatics.AirBlocks.contains((Byte)((byte)(block.getTypeId())))) {
 					if (strataCount == strataToJump) {
-						if (block.getFace(BlockFace.UP).getTypeId() != Material.AIR.getId()) {
+						//HGStatics.AirBlocks.contains((Byte)((byte)(testingBlock.getFace(BlockFace.DOWN).getTypeId())))
+						if (!HGStatics.AirBlocks.contains((Byte)((byte)(block.getFace(BlockFace.UP).getTypeId())))) {
 							continue;
 						}
-						loc = getFloor(block).getFace(BlockFace.DOWN).getLocation();
+						block = getFloor(block);
+						if (block != null) {
+							loc = block.getFace(BlockFace.DOWN).getLocation();
+						}
 						if (loc != null) {
 							break;
 						}
@@ -222,27 +219,32 @@ public class HGPlayerManagement {
 						solidFound = false;
 						strataCount++;
 					}
-				} else if (block.getTypeId() != Material.AIR.getId() && block.getTypeId() != Material.LAVA.getId()
-						&& block.getTypeId() != Material.STATIONARY_LAVA.getId() && block.getType().isBlock()) {
+				} else if (!HGStatics.AirBlocks.contains((Byte)((byte)(block.getTypeId()))) && 
+						!HGStatics.DangerBlocks.contains((Byte)((byte)(block.getTypeId())))) {
 					solidFound = true;
 				}
 			}
 		} else {
-			List<Block> blockList = player.getLineOfSight(air, HGStatics.MAX_DISTANCE);
+			List<Block> blockList = player.getLineOfSight(HGStatics.AirBlocks, HGStatics.MAX_DISTANCE);
 			Block block = null;
-			for (int i = blockList.size()-2; i > -1 ; i-- ) {
+			for (int i = blockList.size() - 2; i > -1; i--) {
 				block = blockList.get(i);
-				loc = getFloor(block).getFace(BlockFace.DOWN).getLocation();
+				block = getFloor(block);
+				if (block != null) {
+					loc = block.getFace(BlockFace.DOWN).getLocation();
+				}
 				if (loc != null) {
 					break;
 				}
+
 			}
+
 		}
 		if (loc != null) {
 			loc.setPitch(player.getLocation().getPitch());
 			loc.setYaw(player.getLocation().getYaw());
-			loc.setX(loc.getX()+.5);
-			loc.setZ(loc.getZ()+.5);
+			loc.setX(loc.getX() + .5);
+			loc.setZ(loc.getZ() + .5);
 			msg.sendPositiveMessage(player, "Air found, going there.");
 			player.teleportTo(loc);
 			return null;

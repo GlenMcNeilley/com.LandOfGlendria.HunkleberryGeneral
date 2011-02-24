@@ -1,5 +1,7 @@
 package com.LandOfGlendria.HunkleberryGeneral;
 
+import java.util.HashSet;
+
 import org.bukkit.ChatColor;
 import org.bukkit.World;
 
@@ -31,5 +33,24 @@ public class HGStatics {
 	public static final String BLIND = "blind";
 	public static final String NORMAL = "normal";
 	public static final String NEAT = "neat";
+	public static final byte[] SAFE_BLOCKS = {1,2,3,4,5,6,7,8,9,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,35,41,42,43,44,45,46,47,48,49,52,53,54,56,57,58,61,62,64,67,71,74,79,80,82,84,85,86,87,88,89,91};
+	public static final byte[] DANGEROUS_BLOCKS = {10,11,51,81};
+	public static final byte[] INSUBSTATNIAL_BLOCKS = {0,37,38,39,40,50,55,56,59,60,63,65,66,68,69,70,71,72,73,74,75,76,77,78,83,90,92,93,94};
+	public static final HashSet<Byte> SafeBlocks = new HashSet<Byte>();
+	public static final HashSet<Byte> DangerBlocks = new HashSet<Byte>();
+	public static final HashSet<Byte> AirBlocks = new HashSet<Byte>();
+	
+    static {
+        for (int i = 0 ; i < SAFE_BLOCKS.length; i++) {
+            SafeBlocks.add(SAFE_BLOCKS[i]);
+        }
+        for (int i = 0 ; i < DANGEROUS_BLOCKS.length; i++) {
+            DangerBlocks.add(DANGEROUS_BLOCKS[i]);
+        }
+        for (int i = 0 ; i < INSUBSTATNIAL_BLOCKS.length; i++) {
+            AirBlocks.add(INSUBSTATNIAL_BLOCKS[i]);
+        }
+    }
 
 }
+
