@@ -187,8 +187,7 @@ public class HGConfig {
 				FileInputStream fileReader = new FileInputStream(propertiesFile);
 				properties.load(fileReader);
 				fileReader.close();
-				log.info((new StringBuilder(String.valueOf(HGStatics.PLUGIN_NAME))).append(": Read ").append(HGStatics.PLUGIN_PATH)
-						.append(propertiesFile.getName()).append(".").toString());
+				log.info((new StringBuilder(String.valueOf(HGStatics.PLUGIN_NAME))).append(": Read ").append(propertiesFile.getName()).append(".").toString());
 			} catch (IOException e) {
 				log.severe((new StringBuilder(String.valueOf(HGStatics.PLUGIN_NAME))).append(": Unable to load ").append(HGStatics.PLUGIN_PATH)
 						.append(propertiesFile.getName()).append(".").toString());
@@ -309,4 +308,55 @@ public class HGConfig {
 		}
 		return sb.toString();
 	}
+
+	public void readMotd() {
+		StringBuffer sb = new StringBuffer();
+		Scanner scanner = null;
+		try {
+			scanner = new Scanner(new FileReader(HGStatics.MOTD_FILE));
+			while ( scanner.hasNextLine() ){
+				String scanned = scanner.nextLine();
+				if (!scanned.startsWith("#") && !scanned.startsWith("//")) {
+					sb.append(scanned);
+					sb.append(HGStatics.MOTD_EOL);
+				}
+			}
+		} catch (FileNotFoundException e) {
+			msg.warn("Unable to find MOTD: " + HGStatics.MOTD_FILE);
+		} finally {
+			if (scanner != null)
+				scanner.close();
+		}
+		HGStatics.MOTD_STRING = sb.toString();
+	}
 }
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+

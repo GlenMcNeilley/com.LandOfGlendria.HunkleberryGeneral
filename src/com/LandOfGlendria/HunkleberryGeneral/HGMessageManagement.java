@@ -1,15 +1,26 @@
 package com.LandOfGlendria.HunkleberryGeneral;
 
+import java.text.DateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
 import java.util.logging.Logger;
 
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 
 public class HGMessageManagement {
 
 	private static final Logger log = Logger.getLogger("Minecraft");
+	private Plugin plugin;
+	//	private HGInventoryManagement inv;
 
-	public HGMessageManagement() {
+	public HGMessageManagement(Plugin plugin) {
+		this.plugin = plugin;
+		//		this.inv = inv;
 	}
 
 	public String[] messageSegmenter(String message, int notUSed) {
@@ -59,9 +70,11 @@ public class HGMessageManagement {
 					break;
 
 				case 167:
-					lastColor = String.copyValueOf(chars, lookingAtChar, 2);
-					lookingAtChar += 2;
-					break;
+					if (chars.length > lookingAtChar + 2) {
+						lastColor = String.copyValueOf(chars, lookingAtChar, 2);
+						lookingAtChar += 2;
+						break;
+					}
 
 				default:
 					visibleCount++;
@@ -247,6 +260,40 @@ public class HGMessageManagement {
 		return null;
 	}
 
+	public String getPlayerList() {
+		StringBuffer sb = new StringBuffer();
+		Player[] players = plugin.getServer().getOnlinePlayers();
+		for (Player play : players) {
+			if (play.isOp()){
+				sb.append(HGStatics.ERROR_COLOR);
+			} else {
+				sb.append(HGStatics.POSITIVE_COLOR);
+			}
+			sb.append("[");
+			sb.append(play.getDisplayName());
+			sb.append("] ");
+		}
+		return (sb.toString());
+	}
+
+	public String getWorldList(Player player) {
+		ArrayList<World> worlds = (ArrayList<World>) plugin.getServer().getWorlds();
+		StringBuffer sb = new StringBuffer();
+		for (Iterator<World> iterator = worlds.iterator(); iterator.hasNext(); sb.append("] ")) {
+			World world = (World) iterator.next();
+			sb.append(HGStatics.NO_COLOR);
+			sb.append("[");
+			if (world.getEnvironment() == org.bukkit.World.Environment.NORMAL) {
+				sb.append(HGStatics.POSITIVE_COLOR);
+			} else {
+				sb.append(HGStatics.ERROR_COLOR);
+			}
+			sb.append(world.getName());
+			sb.append(HGStatics.NO_COLOR);
+		}
+		return sb.toString();
+	}
+
 	public void info(String message) {
 		log.info((new StringBuilder(String.valueOf(HGStatics.LOG_PREFIX))).append(message).toString());
 	}
@@ -259,4 +306,131 @@ public class HGMessageManagement {
 		log.info((new StringBuilder(String.valueOf(HGStatics.LOG_PREFIX))).append(message).toString());
 	}
 
+	public void parseMotdForPlayer(Player player,String motd) {
+		//just a series of replaces, I guess
+		int beginToken = -1;
+		int endToken = -1;
+		String[] lines = motd.split(HGStatics.MOTD_EOL);
+		for (String line : lines) {
+			int initialToken = 0;
+			StringBuilder newline = new StringBuilder(line);
+			while (true) {
+				try {
+					initialToken = findToken(newline,HGStatics.MOTD_SPECIAL_CHAR,0);
+					String testString = newline.toString();
+					if (initialToken == -1) {
+						break; //to next line
+					}
+
+					//one of these for each token
+					//colors
+					newline = replaceBasic(newline,HGStatics.MOTD_AQUA ,ChatColor.AQUA .toString());
+					newline = replaceBasic(newline,HGStatics.MOTD_BLACK ,ChatColor.BLACK .toString());
+					newline = replaceBasic(newline,HGStatics.MOTD_BLUE ,ChatColor.BLUE .toString());
+					newline = replaceBasic(newline,HGStatics.MOTD_DARK_AQUA ,ChatColor.DARK_AQUA .toString());
+					newline = replaceBasic(newline,HGStatics.MOTD_DARK_BLUE ,ChatColor.DARK_BLUE .toString());
+					newline = replaceBasic(newline,HGStatics.MOTD_DARK_GRAY ,ChatColor.DARK_GRAY .toString());
+					newline = replaceBasic(newline,HGStatics.MOTD_DARK_GREEN ,ChatColor.DARK_GREEN .toString());
+					newline = replaceBasic(newline,HGStatics.MOTD_DARK_PURPLE ,ChatColor.DARK_PURPLE .toString());
+					newline = replaceBasic(newline,HGStatics.MOTD_DARK_RED ,ChatColor.DARK_RED .toString());
+					newline = replaceBasic(newline,HGStatics.MOTD_GOLD ,ChatColor.GOLD .toString());
+					newline = replaceBasic(newline,HGStatics.MOTD_GRAY ,ChatColor.GRAY .toString());
+					newline = replaceBasic(newline,HGStatics.MOTD_GREEN ,ChatColor.GREEN .toString());
+					newline = replaceBasic(newline,HGStatics.MOTD_LIGHT_PURPLE ,ChatColor.LIGHT_PURPLE .toString());
+					newline = replaceBasic(newline,HGStatics.MOTD_RED ,ChatColor.RED .toString());
+					newline = replaceBasic(newline,HGStatics.MOTD_WHITE ,ChatColor.WHITE .toString());
+					newline = replaceBasic(newline,HGStatics.MOTD_YELLOW ,ChatColor.YELLOW .toString());
+
+					//server
+					newline = replaceBasic(newline,HGStatics.MOTD_NUMP,String.valueOf(plugin.getServer().getOnlinePlayers().length));
+					newline = replaceBasic(newline,HGStatics.MOTD_MAXP,String.valueOf(plugin.getServer().getMaxPlayers()));
+					newline = replaceBasic(newline,HGStatics.MOTD_WORLDS,getWorldList(player));
+					newline = replaceBasic(newline,HGStatics.MOTD_DATE,
+							DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT).format(new Date()));
+					newline = replaceBasic(newline,HGStatics.MOTD_PPL,getPlayerList());
+
+					//player
+					newline = replaceBasic(newline,HGStatics.MOTD_NAME,player.getName());
+					newline = replaceBasic(newline,HGStatics.MOTD_ALIAS,player.getDisplayName());
+					newline = replaceBasic(newline,HGStatics.MOTD_ADDR,player.getAddress().toString());
+
+					//more complex tokens
+
+					//set item in hand
+					if ((beginToken = findToken(newline,HGStatics.MOTD_HOLD,0)) != -1) {
+						if ((endToken = findToken(newline,HGStatics.MOTD_SPECIAL_CHAR,beginToken + 1)) != -1) {
+							String material = newline.substring(beginToken + HGStatics.MOTD_HOLD.length(),endToken);
+							HGInventoryManagement.setItemInHand(player, material, 1);
+							newline.delete(beginToken, endToken+1);
+						} else {
+							warn("Error in " + HGStatics.MOTD_FILE + " Unable to find end token for " + 
+									HGStatics.MOTD_HOLD + "in this line: " + line);
+						}
+					}
+					//teleport
+					if ((beginToken = findToken(newline,HGStatics.MOTD_PORT,0)) != -1) {
+						if ((endToken = findToken(newline,HGStatics.MOTD_SPECIAL_CHAR,beginToken + 1)) != -1) {
+							String location = newline.substring(beginToken + HGStatics.MOTD_PORT.length(),endToken);
+							//get world,x,y,z
+							String[] elements = location.split(",");
+							if (elements.length != 4){
+								warn("Not enough info to teleport from MOTD, please revise.[worldname,x,y,z]");
+							}
+							double x = 0;
+							double y = 0;
+							double z = 0;
+							World world = plugin.getServer().getWorld(elements[0]);
+							try {
+								x = Double.valueOf(elements[1]);
+								y = Double.valueOf(elements[2]);
+								z = Double.valueOf(elements[3]);
+							} catch (NumberFormatException e) {
+								warn("Not enough info to teleport from MOTD, please revise.[worldname,x,y,z]");
+								break;
+							}
+							if (world != null) {
+								player.teleportTo(new Location(world, x, y, z));
+							}
+							newline.delete(beginToken, endToken+1);
+						} else {
+							warn("Error in " + HGStatics.MOTD_FILE + " Unable to find end token for " + 
+									HGStatics.MOTD_PORT + "in this line: " + line);
+						}
+					}
+
+					if (testString.equals(newline.toString())) {
+						//no change, nextline
+						break;
+					}
+
+				} catch (Exception e) {
+					info("exception: " +newline.toString());
+
+					return;
+				}
+			}// while
+			sendSegmented(player,newline.toString());
+		} // no more lines
+	}
+
+	public int findToken(StringBuilder line,String token,int startIndex) {
+		return line.indexOf(token,startIndex);		
+	}
+
+	//replaces basic this for that tokens
+	public StringBuilder replaceBasic(StringBuilder newline,String token, String replacement) throws Exception {
+		int beginToken = -1;
+		int endToken = -1;
+		if ((beginToken = findToken(newline,token,0)) != -1) {
+			if ((endToken = findToken(newline,HGStatics.MOTD_SPECIAL_CHAR,beginToken + 1)) != -1) {
+				//replace token with info
+				newline.replace(beginToken, endToken+1, replacement);
+			} else {
+				warn("Error in " + HGStatics.MOTD_FILE + " Unable to find end token for " + 
+						token + "in this line: " + newline);
+				throw new Exception("parse error");
+			}
+		} //token not found
+		return newline;
+	}
 }

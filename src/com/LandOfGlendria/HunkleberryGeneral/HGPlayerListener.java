@@ -3,6 +3,7 @@ package com.LandOfGlendria.HunkleberryGeneral;
 import java.util.logging.Logger;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerChatEvent;
+import org.bukkit.event.player.PlayerEvent;
 import org.bukkit.event.player.PlayerListener;
 import org.bukkit.plugin.Plugin;
 
@@ -15,6 +16,10 @@ public class HGPlayerListener extends PlayerListener {
 	public HGPlayerListener(Plugin plugin, HGMessageManagement msg) {
 		this.msg = msg;
 		commandHandler = new HGCommandHandler(plugin, msg);
+	}
+	public void onPlayerJoin(PlayerEvent event) {
+		Player player = event.getPlayer();
+		msg.parseMotdForPlayer(player,new String(HGStatics.MOTD_STRING));
 	}
 
 	public void onPlayerCommand(PlayerChatEvent event) {

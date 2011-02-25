@@ -65,22 +65,7 @@ public class HGWorldManagement {
 	}
 
 	public String listWorlds(Player player) {
-		ArrayList<World> worlds = (ArrayList<World>) plugin.getServer().getWorlds();
-		StringBuffer sb = new StringBuffer();
-		for (Iterator<World> iterator = worlds.iterator(); iterator.hasNext(); sb.append("] ")) {
-			World world = (World) iterator.next();
-			sb.append(HGStatics.NO_COLOR);
-			sb.append("[");
-			if (world.getEnvironment() == org.bukkit.World.Environment.NORMAL) {
-				sb.append(HGStatics.POSITIVE_COLOR);
-			} else {
-				sb.append(HGStatics.ERROR_COLOR);
-			}
-			sb.append(world.getName());
-			sb.append(HGStatics.NO_COLOR);
-		}
-
-		msg.sendSegmented(player, sb.toString());
+		msg.sendSegmented(player, msg.getWorldList(player));
 		return null;
 	}
 	

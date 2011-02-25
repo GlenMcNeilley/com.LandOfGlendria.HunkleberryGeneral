@@ -25,6 +25,7 @@ public enum HGCommandData {
 	FLING					("fling",			"hg.loc.other",		true,	"",	true,	"{name}[worldname] [playername] [x y z]:default=current world spawn",	"Teleport player to specified [player] or [world] or [world,coords] or [coords], in order of precedence, or by default, the world spawn point."),
 	TELEPORT				("teleport",		"hg.loc",			true,	"",	true,	"{x} {y} {z}",															"Teleport yourself to the specified location."),
 	STRATUM					("strata",			"hg.loc",			true,	"",	true,	"[number:default=0]",													"Move to the nth occurrence of a solid to air transition in the direction of the crosshair."),
+	MOTD					("motd",			"hg.list",			true,	"",	true,	"",																		"Display the current world motd."),
 	GET_TIME				("gettime",			"hg.list",			true,	"",	true,	"[playername:default=self]",											"Display the current world time for your world or the world of the selected player."),
 	SET_TIME				("time",			"hg.time.set",		true,	"",	true,	"[playername:default=self] [time:default=noon]",						"Set the time of your current world or the current world of the specified player. Values of [ 0 - 24000 | sunrise | noon | sunset | midnight ] are valid for time."),
 	LIST_WORLDS				("listworlds",		"hg.list",			true,	"",	true,	"",																		"List the loaded worlds."),

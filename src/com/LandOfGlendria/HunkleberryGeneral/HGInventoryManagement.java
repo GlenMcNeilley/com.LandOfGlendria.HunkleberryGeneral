@@ -96,6 +96,22 @@ public class HGInventoryManagement {
 		return player.getInventory().addItem(new ItemStack[] { new ItemStack(item, amount) }).size();
 	}
 
+	public static int addItemToInventory(Player player, String item, int amount) {
+		Material mat = Material.matchMaterial(item);
+		if (mat != null) {
+			return player.getInventory().addItem(new ItemStack[] { new ItemStack(mat, amount) }).size();
+		}
+		return -1;
+	}
+
+	public static int setItemInHand(Player player, String item, int amount) {
+		Material mat = Material.matchMaterial(item);
+		if (mat != null) {
+			player.setItemInHand(new ItemStack(mat, amount));
+		}
+		return 1;
+	}
+
 	public int addItemToInventory(Player player, int item, int amount, byte data) {
 		if (data == -1) {
 			return addItemToInventory(player,item,amount);

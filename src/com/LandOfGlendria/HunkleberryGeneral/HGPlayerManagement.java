@@ -179,6 +179,11 @@ public class HGPlayerManagement {
 		return null;
 	}
 
+	public String teleport(Player player, World world, double x, double y, double z) {
+		player.teleportTo(new Location(world, x, y, z));
+		return null;
+	}
+
 	public String getLocation(Player player) {
 		Location loc = player.getLocation();
 		msg.sendPositiveMessage(player, (new StringBuilder("Loc: ")).append(loc.getX()).append(",").append(loc.getY()).append(",").append(loc.getZ())

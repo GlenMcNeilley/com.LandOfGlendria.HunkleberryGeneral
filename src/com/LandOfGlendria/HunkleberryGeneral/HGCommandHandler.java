@@ -249,6 +249,16 @@ public class HGCommandHandler {
 			return playerManager.stratum(player, strataToJump);
 		}
 		
+		if (cmd == HGCommandData.MOTD) {
+			if (commandArray.length > 1) {
+				config.readMotd();
+			}
+			if (HGStatics.MOTD_STRING != null) {
+				msg.parseMotdForPlayer(player,new String(HGStatics.MOTD_STRING));
+			}
+			return null;
+		}
+
 		if (cmd == HGCommandData.GET_TIME) {
 			//second arg is either world or player
 			World receiverWorld = player.getWorld();
