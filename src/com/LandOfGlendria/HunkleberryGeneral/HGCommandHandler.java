@@ -1,5 +1,6 @@
 package com.LandOfGlendria.HunkleberryGeneral;
 
+import java.io.IOException;
 import java.util.logging.Logger;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -34,7 +35,7 @@ public class HGCommandHandler {
 		if (cmd == HGCommandData.HG_HELP) {
 			if (commandArray.length > 1) {
 				boolean allowedToUse = true;
-				HGCommandData commandForHelp = HGCommandData.getCommandDataByName(commandArray[1]);
+				HGCommandData commandForHelp = HGCommandData.getCommandDataByName(commandArray[1].replaceAll("/", ""));
 				if (commandForHelp == null) {
 					return msg.formatInvalidArgs(commandArray[1], "Unknown command");
 				}
@@ -51,6 +52,7 @@ public class HGCommandHandler {
 			}
 			return null;
 		}
+		
 		if (cmd == HGCommandData.LOAD_PLUGIN) {
 			if (commandArray.length > 1) {
 				String name = msg.concatinateRemainingArgs(commandArray, 1);
@@ -212,24 +214,7 @@ public class HGCommandHandler {
 			}
 			return playerManager.setDisplayName(player, newName, indexAndColors);
 		}
-		if (cmd == HGCommandData.TELEPORT) {
-			double x = 0.0D;
-			double y = 0.0D;
-			double z = 0.0D;
-			if (commandArray.length > 3) {
-				try {
-					x = Double.parseDouble(commandArray[1]);
-					y = Double.parseDouble(commandArray[2]);
-					z = Double.parseDouble(commandArray[3]);
-				} catch (NumberFormatException e) {
-					return msg.formatInvalidArgs((new StringBuilder(String.valueOf(commandArray[1]))).append(" ").append(commandArray[1]).append(" ")
-							.append(commandArray[1]).toString(), "Invalid coordinate values");
-				}
-				return playerManager.teleport(player, x, y, z);
-			} else {
-				return msg.formatInvalidArgs(msg.concatinateRemainingArgs(commandArray, 1), "Not a valid coordinate triplet");
-			}
-		}
+
 		if (cmd == HGCommandData.LOC) {
 			msg.sendPositiveMessage(player, playerManager.getLocation(player));
 		}
@@ -522,7 +507,12 @@ public class HGCommandHandler {
 		}
 		
 		if (cmd == HGCommandData.WRITE_COMMAND_HTML) {
-			log.info(config.writeCommandsToHtmlSimple());
+			try {
+				config.writeFile(HGStatics.COMMAND_HTML_FILE,(config.writeCommandsToHtmlSimple()),HGStatics.OVERWRITE);
+			} catch (IOException e) {
+				msg.severe("Failed attempt to write file.");
+				return ("Unable to write file.");
+			}
 			return null;
 		} 
 		
@@ -531,8 +521,120 @@ public class HGCommandHandler {
 			return null;
 		}
 		
+		if (cmd == HGCommandData.SAVE_PROPERTIES) {
+			msg.sendPositiveMessage(player, "Saving command changes to properties files.");
+			config.setCurrentConfigFileProperties();
+			config.saveConfigFileProperties();
+			return null;
+		}
 		
+		if (cmd == HGCommandData.RELOAD_PROPERTIES) {
+			msg.sendPositiveMessage(player, "Reloading commands and applying properties files settings");
+			config.managePropertyFiles();
+			return null;
+		}
+		
+		if (cmd == HGCommandData.SET_ALIAS) {
+			if (commandArray.length > 1) {
+				String command = commandArray[1].replaceAll("/", "");
+				HGCommandData commandToChange = HGCommandData.getCommandDataByName(command);
+				if (commandToChange !=null) {
+					String newValue = new String("");
+					if (commandArray.length > 2) {
+						newValue = commandArray[2].replaceAll("/", "");
+						HGCommandData aliasCommand = HGCommandData.getCommandDataByName(newValue);
+						if (aliasCommand != null) {
+							return msg.formatInvalidArgs(commandArray[2],"Name already in use");
+						}
+					}
+					commandToChange.setCommandAlias(newValue);
+					HGCommandData.reloadLookup();
+					if (commandArray.length > 2) {
+						msg.sendPositiveMessage(player,"Set alias of [/" + newValue + "] for command [/" + command + "].");
+					} else {
+						msg.sendPositiveMessage(player, "Removed alias for " + commandToChange.getCommand());
+					}
+					return null;
+				} else {
+					return msg.formatInvalidArgs(commandArray[1],"Unknown command");
+				}
+			} else {
+				return "Invalid Arguments";
+			}
+		}
+		
+		if (cmd == HGCommandData.SET_SERVER_ALLOW) {
+			if (commandArray.length > 2) {
+				String command = commandArray[1].replaceAll("/", "");
+				HGCommandData commandToChange = HGCommandData.getCommandDataByName(command);
+				if (commandToChange !=null) {
+					String newValue = new String("");
+					newValue = commandArray[2];
+					if (newValue.equalsIgnoreCase("true") || newValue.equalsIgnoreCase("false")) {
+						commandToChange.setServerAllowed(Boolean.parseBoolean(newValue));
+						//HGCommandData.reloadLookup();
+					} else {
+						return msg.formatInvalidArgs(newValue, "Invalid value");
+					}
+					msg.sendPositiveMessage(player,"Set server allow to " + newValue + " for command [/" + command + "].");
+					return null;
+				} else {
+					return msg.formatInvalidArgs(commandArray[1],"Unknown command");
+				}
+			} else {
+				return "Invalid Arguments";
+			}
+		}
+		
+		if (cmd == HGCommandData.SET_OPS_ONLY) {
+			if (commandArray.length > 2) {
+				String command = commandArray[1].replaceAll("/", "");
+				HGCommandData commandToChange = HGCommandData.getCommandDataByName(command);
+				if (commandToChange !=null) {
+					String newValue = new String("");
+					newValue = commandArray[2];
+					if (newValue.equalsIgnoreCase("true") || newValue.equalsIgnoreCase("false")) {
+						commandToChange.setOpsOnly(Boolean.parseBoolean(newValue));
+						//HGCommandData.reloadLookup();
+					} else {
+						return msg.formatInvalidArgs(newValue, "Invalid value");
+					}
+					msg.sendPositiveMessage(player,"Set ops only to " + newValue + " for command [/" + command + "].");
+					return null;
+				} else {
+					return msg.formatInvalidArgs(commandArray[1],"Unknown command");
+				}
+			} else {
+				return "Invalid Arguments";
+			}
+		}
+		
+		if (cmd == HGCommandData.SET_PERMISSIONS) {
+			if (commandArray.length > 1) {
+				String command = commandArray[1].replaceAll("/", "");
+				HGCommandData commandToChange = HGCommandData.getCommandDataByName(command);
+				if (commandToChange !=null) {
+					String newValue = null;
+					if (commandArray.length > 2) {
+						newValue = commandArray[2];
+					}
+					commandToChange.setPermissions(newValue);
+					HGCommandData.reloadLookup();
+					msg.sendPositiveMessage(player,"Set permission string of [" + newValue + "] for command [/" + command + "].");
+					return null;
+				} else {
+					return msg.formatInvalidArgs(commandArray[1],"Unknown command");
+				}
+			} else {
+				return "Invalid Arguments";
+			}
+		}
+
+		
+		
+		
+		
+		// end of all commands
 		return null;
-		
 	}
 }

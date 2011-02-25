@@ -51,8 +51,8 @@ public class HGPluginManagement {
 			pluginInfo.append("] ");
 		}
 		messages[1] = pluginInfo.toString();
+		msg.sendPositiveMessage(player,messages[0]);
 		msg.sendPositiveMessage(player,messages[1]);
-		msg.sendPositiveMessage(player,messages[2]);
 	}
 
 	private String enableInThread(final Plugin plugin) {

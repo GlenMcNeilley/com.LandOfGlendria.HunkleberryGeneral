@@ -211,19 +211,28 @@ public class HGMessageManagement {
 		sb.append(" ");
 		sb.append(HGStatics.NO_COLOR);
 		sb.append(command.getCommandUsage());
-		sb.append(" ");
+		sb.append(" Settings: ");
+		sb.append(HGStatics.WARNING_COLOR);
+		sb.append("[opsOnly=");
+		sb.append(command.getOpsOnly().toString());
+		sb.append("] [serverAllowed=");
+		sb.append(command.getServerAllowed().toString());
+		sb.append("] [permissions=");
+		sb.append(command.getPermissions());
+		sb.append("] ");
 		if (command.getServerAllowed().booleanValue()) {
 			if (allowed) {
 				sb.append(HGStatics.POSITIVE_COLOR);
-				sb.append("This command is enabled and you have permission to use it.");
+				sb.append("Usable.");
 			} else {
 				sb.append(HGStatics.ERROR_COLOR);
-				sb.append("This command is enabled but you don't have permission to use it.");
+				sb.append("Not usable.");
 			}
 		} else {
 			sb.append(HGStatics.ERROR_COLOR);
-			sb.append(" This command is disabled.");
+			sb.append("Not usable.");
 		}
+
 		sendSegmented(player, sb.toString());
 	}
 

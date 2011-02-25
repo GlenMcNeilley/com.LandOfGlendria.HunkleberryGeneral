@@ -22,7 +22,6 @@ public class HunkleberryGeneral extends JavaPlugin {
 		msg = new HGMessageManagement(this);
 		config = new HGConfig(this, msg);
 		listener = new HGPlayerListener(this, msg);
-		config.readMotd();
 		PluginManager pm = getServer().getPluginManager();
 		
 		pm.registerEvent(org.bukkit.event.Event.Type.PLAYER_COMMAND, listener, org.bukkit.event.Event.Priority.Normal, this);
@@ -32,6 +31,7 @@ public class HunkleberryGeneral extends JavaPlugin {
 	}
 
 	public void onDisable() {
+		
 	}
 
 	public boolean isDebugging(Player player) {
