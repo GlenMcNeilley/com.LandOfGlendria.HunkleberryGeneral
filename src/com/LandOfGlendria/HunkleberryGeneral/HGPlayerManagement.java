@@ -33,7 +33,7 @@ public class HGPlayerManagement {
 		displayName.append(name);
 		int color = 0;
 		int index = 0;
-		int cumulative = 3;
+		int cumulative = 2;
 		if (colorArray != null) {
 			String as[];
 			int j = (as = colorArray.split("/")).length;
@@ -69,7 +69,7 @@ public class HGPlayerManagement {
 
 		}
 		displayName.append(HGStatics.NO_COLOR);
-		displayName.append(" ");
+		displayName.append("");
 		player.setDisplayName(displayName.toString());
 		msg.sendPositiveMessage(player, (new StringBuilder("Set display name to ")).append(displayName.toString()).toString());
 		return null;
