@@ -429,13 +429,10 @@ public class HGCommandHandler {
 			//ITEM BY NAME
 				try {
 					Material mat = Material.matchMaterial(commandArray[commandIndex]);
-					
 					if (mat != null) {
-						//return msg.formatInvalidArgs(commandArray[commandIndex], "Invalid item number");
 						itemNumber = mat.getId();
 						commandIndex++;
 					}
-
 				} catch (NumberFormatException e) {
 					return msg.formatInvalidArgs(commandArray[commandIndex], "Invalid item number");
 				}
@@ -454,7 +451,6 @@ public class HGCommandHandler {
 			} else {
 				return "Item number or name required.";
 			}
-			msg.info("item "+String.valueOf(itemNumber));
 			
 			//QUANTITY
 			if (commandArray.length > commandIndex && commandArray[commandIndex] != null) {
@@ -469,7 +465,6 @@ public class HGCommandHandler {
 				itemQuantity = 2304;
 			}
 			
-			msg.info("quant "+String.valueOf(itemQuantity));
 
 			if (commandArray.length > commandIndex && commandArray[commandIndex] != null) {
 			//DATA
@@ -481,7 +476,6 @@ public class HGCommandHandler {
 				}
 				commandIndex++;
 			}
-			msg.info("data "+String.valueOf(itemData));
 
 			if (commandArray.length > commandIndex && commandArray[commandIndex] != null) {
 				return msg.formatInvalidArgs(msg.concatinateRemainingArgs(commandArray, 1), "Too many arguments");
@@ -492,7 +486,6 @@ public class HGCommandHandler {
 				if (itemQuantity > available) {
 					itemQuantity = available;
 				}
-				msg.info("quant2 "+String.valueOf(itemQuantity));
 
 				//ADDING INVENTORY
 				int stacksNotAdded = inventoryManager.addItemToInventory(receiver, itemNumber, itemQuantity, itemData);

@@ -26,7 +26,6 @@ public class HGPlayerManagement {
 		Player player = plugin.getServer().getPlayer(name);
 		List<Player> playerList = plugin.getServer().matchPlayer(name);
 		Player[] playerArray = plugin.getServer().getOnlinePlayers();
-		msg.info(playerArray.toString());
 		if (player != null) {
 			return player;
 		} else if (playerList.size() == 1) {
