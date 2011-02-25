@@ -14,6 +14,7 @@ public enum HGCommandData {
 	CLEAR_INVENTORY			("clearinv",		"hg.inv",				true,	"",	true,	"[playername:default=self]",											"Clear your inventory or the inventory of the specified player.  The quick access bar and armor slots will not be cleared."),
 	CLEAR_INVENTORY_ALL		("clearinvall",		"hg.inv",				true,	"",	true,	"[playerName:default=self]",											"Clear the entire inventory, including guick access and armor slots, of you or the specified player."),
 	LIST_INVENTORY			("listinv",			"hg.list",				true,	"",	true,	"[playername:default=self]",											"List your inventory or the inventory of the specified player."),
+	LIST_MATS				("matcontains",		"hg.list",				true,	"",	true,	"{string}",																"List all mats that contain the given string."),
 	HEAL_PLAYER				("heal",			"hg.heal",				true,	"",	true,	"[playername:default=self]",											"Fully heal you or the specified player."),
 	SET_DISPLAY_NAME		("setname",			"hg.rename",			true,	"",	true,	"{playername} {newname} [index,color/...:default=no color]",			"Set your chat display name with optional colorizing, e.g., Bobbin 1,6/4,12"),
 	COLOR_CHART				("colorchart",		"hg.misc",				true,	"",	true,	"",																		"Display the available color numbers."),
@@ -42,7 +43,7 @@ public enum HGCommandData {
 	SET_ALIAS				("setcommandalias",	"hg.commands.change",	true,	"",	true,	"{command} [alias:default=\"\"]",										"Assign an alias to a command. The default command will no longer be registered with HunkleberryGeneral.  Omitting the optional alias will clear the alias for default command. Use /saveproperties to save any changes, otherwise they will be lost."),
 	SET_SERVER_ALLOW		("setserverallow",	"hg.commands.change",	true,	"",	true,	"{command} {true|false}",												"Set the plugins visibility to the command. Assigning false to a command will cause the command to no longer be registered with HunkleberryGeneral. Use /saveproperties to save any changes, otherwise they will be lost."),
 	SET_OPS_ONLY			("setopsonly",		"hg.commands.change",	true,	"",	true,	"{command} {true|false}",												"Set to true to only allow ops access to the command, false to allow everyone to use it. Use /saveproperties to save any changes, otherwise they will be lost."),
-	SET_PERMISSIONS			("setpermission",	"hg.commands.change",	true,	"",	true,	"{command} [new string:default=\"\"]",									"Change the permissions string. See the properties file for information on resetting the value to the default.  Use /saveproperties to save any changes, otherwise they will be lost."),
+	SET_PERMISSIONS			("setpermissions",	"hg.commands.change",	true,	"",	true,	"{command} [new string:default=\"\"]",									"Change the permissions string. See the properties file for information on resetting the value to the default.  Use /saveproperties to save any changes, otherwise they will be lost."),
 	SAVE_PROPERTIES			("saveproperties",	"hg.commands.change",	true,	"",	true,	"",																		"Save any changes to the server config settings to their respective files. This command must be used to save any changes made via chat commands."),
 	RELOAD_PROPERTIES		("reloadproperties","hg.commands.change",	true,	"",	true,	"",																		"Reload commands and apply any changes made to the config files.  Overwrites any non-saved changes made via chat commands.");
 	//@formatter:on

@@ -118,7 +118,7 @@ public class HGCommandHandler {
 			Player resolvedPlayer;
 			if (commandArray.length > 1) {
 				String receiverName = commandArray[1];
-				Player receiver = plugin.getServer().getPlayer(receiverName);
+				Player receiver = playerManager.resolvePlayer(receiverName);
 				if (receiver == null) {
 					return msg.formatInvalidArgs(receiverName, "Invalid player name");
 				} 
@@ -134,7 +134,7 @@ public class HGCommandHandler {
 			Player resolvedPlayer;
 			if (commandArray.length > 1) {
 				String receiverName = commandArray[1];
-				Player receiver = plugin.getServer().getPlayer(receiverName);
+				Player receiver = playerManager.resolvePlayer(receiverName);
 				if (receiver == null) {
 					return msg.formatInvalidArgs(receiverName, "Invalid player name");
 				} 
@@ -150,7 +150,7 @@ public class HGCommandHandler {
 			Player resolvedPlayer;
 			if (commandArray.length > 1) {
 				String receiverName = commandArray[1];
-				Player receiver = plugin.getServer().getPlayer(receiverName);
+				Player receiver = playerManager.resolvePlayer(receiverName);
 				if (receiver == null) {
 					return msg.formatInvalidArgs(receiverName, "Invalid player name");
 				} 
@@ -165,7 +165,7 @@ public class HGCommandHandler {
 			Player resolvedPlayer = player;
 			if (commandArray.length > 1) {
 				String receiverName = commandArray[1];
-				Player receiver = plugin.getServer().getPlayer(receiverName);
+				Player receiver = playerManager.resolvePlayer(receiverName);
 				if (receiver == null) {
 					return msg.formatInvalidArgs(receiverName, "Invalid player name");
 				}
@@ -197,7 +197,7 @@ public class HGCommandHandler {
 			String indexAndColors = null;
 			Player receiver = null;
 			if (commandArray.length > 1) {
-				receiver = plugin.getServer().getPlayer(commandArray[1]);
+				receiver = playerManager.resolvePlayer(commandArray[1]);
 				if (receiver == null) {
 					return msg.formatInvalidArgs(commandArray[1], "Must be current player name");
 				}
@@ -266,7 +266,7 @@ public class HGCommandHandler {
 			Player resolvedPlayer;
 			if (commandArray.length > index) {
 				String receiverName = commandArray[index];
-				Player receiver = plugin.getServer().getPlayer(receiverName);
+				Player receiver = playerManager.resolvePlayer(receiverName);;
 				if (receiver == null) {
 					return msg.formatInvalidArgs(receiverName, "Invalid player name");
 				}
@@ -334,7 +334,7 @@ public class HGCommandHandler {
 			Player resolvedPlayer;
 			if (commandArray.length > 1) {
 				String receiverName = commandArray[1];
-				Player receiver = plugin.getServer().getPlayer(receiverName);
+				Player receiver = playerManager.resolvePlayer(receiverName);
 				if (receiver == null) {
 					return msg.formatInvalidArgs(receiverName, "Invalid player name");
 				}
@@ -403,7 +403,7 @@ public class HGCommandHandler {
 			//PLAYER
 				if (commandArray.length > commandIndex && commandArray[commandIndex] != null) {
 					receiverName = commandArray[commandIndex];
-					receiver = plugin.getServer().getPlayer(receiverName);
+					receiver = playerManager.resolvePlayer(receiverName);
 					if (receiver == null) {
 						return (new StringBuilder()).append(new StringBuilder("Invalid Player Name [")).append(receiverName).append("].").toString()
 								.toString();
@@ -426,19 +426,36 @@ public class HGCommandHandler {
 					return "Unable to determine target block.";
 				}
 			} else if (commandArray.length > commandIndex && commandArray[commandIndex] != null) {
+			//ITEM BY NAME
+				try {
+					Material mat = Material.matchMaterial(commandArray[commandIndex]);
+					
+					if (mat != null) {
+						//return msg.formatInvalidArgs(commandArray[commandIndex], "Invalid item number");
+						itemNumber = mat.getId();
+						commandIndex++;
+					}
+
+				} catch (NumberFormatException e) {
+					return msg.formatInvalidArgs(commandArray[commandIndex], "Invalid item number");
+				}
+			} else if (commandArray.length > commandIndex && commandArray[commandIndex] != null) {
 			//ITEM BY ID
 				try {
 					itemNumber = Integer.parseInt(commandArray[commandIndex]);
 					if (Material.getMaterial(itemNumber) == null) {
 						return msg.formatInvalidArgs(commandArray[commandIndex], "Invalid item number");
+					} else {
+						commandIndex++;
 					}
 				} catch (NumberFormatException e) {
 					return msg.formatInvalidArgs(commandArray[commandIndex], "Invalid item number");
 				}
-				commandIndex++;
 			} else {
-				return "Item number required.";
+				return "Item number or name required.";
 			}
+			msg.info("item "+String.valueOf(itemNumber));
+			
 			//QUANTITY
 			if (commandArray.length > commandIndex && commandArray[commandIndex] != null) {
 				try {
@@ -451,6 +468,9 @@ public class HGCommandHandler {
 			if (itemQuantity > 2304) {
 				itemQuantity = 2304;
 			}
+			
+			msg.info("quant "+String.valueOf(itemQuantity));
+
 			if (commandArray.length > commandIndex && commandArray[commandIndex] != null) {
 			//DATA
 				try {
@@ -461,6 +481,8 @@ public class HGCommandHandler {
 				}
 				commandIndex++;
 			}
+			msg.info("data "+String.valueOf(itemData));
+
 			if (commandArray.length > commandIndex && commandArray[commandIndex] != null) {
 				return msg.formatInvalidArgs(msg.concatinateRemainingArgs(commandArray, 1), "Too many arguments");
 			}
@@ -470,6 +492,8 @@ public class HGCommandHandler {
 				if (itemQuantity > available) {
 					itemQuantity = available;
 				}
+				msg.info("quant2 "+String.valueOf(itemQuantity));
+
 				//ADDING INVENTORY
 				int stacksNotAdded = inventoryManager.addItemToInventory(receiver, itemNumber, itemQuantity, itemData);
 				StringBuffer message = new StringBuffer();
@@ -501,8 +525,17 @@ public class HGCommandHandler {
 			return null;
 		}
 		
+		if (cmd == HGCommandData.LIST_MATS) {
+			if (commandArray.length > 1) {
+				msg.sendSegmented(player,msg.getMaterialList(commandArray[1]));
+			} else {
+				return ("Partial material name required.");
+			}
+			return null;
+		}
+		
 		if (cmd == HGCommandData.COLOR_CHART) {
-			log.info(msg.sendColorList(player));
+			msg.sendColorList(player);
 			return null;
 		}
 		

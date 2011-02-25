@@ -73,15 +73,15 @@ public class HGInventoryManagement {
 
 	public int getAvailableSpace(Player player, int item) {
 		CraftItemStack inventoryStacks[] = (CraftItemStack[]) player.getInventory().getContents();
-		CraftItemStack stackToAdd = new CraftItemStack(item, 1);
+//		CraftItemStack stackToAdd = new CraftItemStack(item, 1);
 		int available = 0;
 		int index = 0;
-		CraftItemStack acraftitemstack[];
-		int j = (acraftitemstack = inventoryStacks).length;
-		for (int i = 0; i < j; i++) {
-			CraftItemStack inventoryStack = acraftitemstack[i];
+//		CraftItemStack acraftitemstack[];
+//		int j = (acraftitemstack = inventoryStacks).length;
+		for (CraftItemStack inventoryStack : inventoryStacks) {
+//			CraftItemStack inventoryStack = acraftitemstack[i];
 			if (inventoryStack.getAmount() == 0 && inventoryStack.getType() == Material.AIR) {
-				available += stackToAdd.getMaxStackSize();
+				available += 64; //stackToAdd.getMaxStackSize();
 			}
 //			else if (inventoryStack.getType() == stackToAdd.getType() && inventoryData == data) {
 //				available += inventoryStack.getMaxStackSize() - inventoryStack.getAmount();

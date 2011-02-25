@@ -51,35 +51,35 @@ public class HGStatics {
 
 	public static String MOTD_FILE = (new StringBuilder(PLUGIN_PATH)).append("MOTD.txt").toString();
 	public static String MOTD_EOL = "§EOL§";
-	public static String MOTD_SPECIAL_CHAR = "§";
+	public static String[] MOTD_SPECIAL_CHARS = {"§","%"};
 	public static String MOTD_STRING = null;
 
-	public static String MOTD_AQUA = "§aqua§";
-	public static String MOTD_BLACK = "§black";
-	public static String MOTD_BLUE = "§blue";
-	public static String MOTD_DARK_AQUA = "§dark_aqua";
-	public static String MOTD_DARK_BLUE = "§dark_blue";
-	public static String MOTD_DARK_GRAY = "§dark_gray";
-	public static String MOTD_DARK_GREEN = "§dark_green";
-	public static String MOTD_DARK_PURPLE = "§dark_purple";
-	public static String MOTD_DARK_RED = "§dark_red";
-	public static String MOTD_GOLD = "§gold";
-	public static String MOTD_GRAY = "§gray";
-	public static String MOTD_GREEN = "§green";
-	public static String MOTD_LIGHT_PURPLE = "§light_purple";
-	public static String MOTD_RED = "§red";
-	public static String MOTD_WHITE = "§white";
-	public static String MOTD_YELLOW = "§yellow";
-	public static String MOTD_NUMP = "§num_players";
-	public static String MOTD_MAXP = "§max_players";
-	public static String MOTD_PPL = "§list_ppl";
-	public static String MOTD_WORLDS = "§list_worlds";
-	public static String MOTD_NAME = "§real_name";
-	public static String MOTD_ALIAS = "§alias_name";
-	public static String MOTD_ADDR = "§inter_addr";
-	public static String MOTD_PORT = "§port=";
-	public static String MOTD_DATE = "§day";
-	public static String MOTD_HOLD = "§in_hand=";
+	public static String MOTD_AQUA = "aqua";
+	public static String MOTD_BLACK = "black";
+	public static String MOTD_BLUE = "blue";
+	public static String MOTD_DARK_AQUA = "dark_aqua";
+	public static String MOTD_DARK_BLUE = "dark_blue";
+	public static String MOTD_DARK_GRAY = "dark_gray";
+	public static String MOTD_DARK_GREEN = "dark_green";
+	public static String MOTD_DARK_PURPLE = "dark_purple";
+	public static String MOTD_DARK_RED = "dark_red";
+	public static String MOTD_GOLD = "gold";
+	public static String MOTD_GRAY = "gray";
+	public static String MOTD_GREEN = "green";
+	public static String MOTD_LIGHT_PURPLE = "light_purple";
+	public static String MOTD_RED = "red";
+	public static String MOTD_WHITE = "white";
+	public static String MOTD_YELLOW = "yellow";
+	public static String MOTD_NUMP = "num_players";
+	public static String MOTD_MAXP = "max_players";
+	public static String MOTD_PPL = "list_ppl";
+	public static String MOTD_WORLDS = "list_worlds";
+	public static String MOTD_NAME = "real_name";
+	public static String MOTD_ALIAS = "alias_name";
+	public static String MOTD_ADDR = "inter_addr";
+	public static String MOTD_PORT = "port=";
+	public static String MOTD_DATE = "day";
+	public static String MOTD_HOLD = "in_hand=";
 
     static {
         for (int i = 0 ; i < SAFE_BLOCKS.length; i++) {

@@ -2,6 +2,7 @@ package com.LandOfGlendria.HunkleberryGeneral;
 
 import java.util.*;
 import java.util.logging.Logger;
+
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -19,6 +20,39 @@ public class HGPlayerManagement {
 	public HGPlayerManagement(Plugin plugin, HGMessageManagement msg) {
 		this.plugin = plugin;
 		this.msg = msg;
+	}
+	
+	public Player resolvePlayer(String name) {
+		Player player = plugin.getServer().getPlayer(name);
+		List<Player> playerList = plugin.getServer().matchPlayer(name);
+		Player[] playerArray = plugin.getServer().getOnlinePlayers();
+		msg.info(playerArray.toString());
+		if (player != null) {
+			return player;
+		} else if (playerList.size() == 1) {
+			return playerList.get(0);
+		} else if (playerArray.length > 0) {
+			for (Player play : playerArray) {
+				msg.info(play.getDisplayName().toString());
+
+				if (play.getDisplayName().contains(name)) {
+					return play;
+				}
+			}
+		}
+		return null;
+	}
+
+	public Player resolvePlayer(Player sender,String name) {
+		Player player = plugin.getServer().getPlayer(name);
+		List<Player> players = plugin.getServer().matchPlayer(name);
+		if (player != null) {
+			return player;
+		} else if (players.size() == 1) {
+			return players.get(0);
+		} else {
+			return sender;	
+		}
 	}
 
 	public String healPlayer(Player player) {
@@ -120,7 +154,7 @@ public class HGPlayerManagement {
 				}
 			}
 			if (leapPlayer == null && leapLocation == null) {
-				leapPlayer = server.getPlayer(argument);
+				leapPlayer = resolvePlayer(argument);
 				if (leapPlayer != null) {
 					leapLocation = leapPlayer.getLocation();
 					leapWorld = leapLocation.getWorld();

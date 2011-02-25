@@ -8,6 +8,7 @@ import java.util.logging.Logger;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
@@ -279,11 +280,12 @@ public class HGMessageManagement {
 				sb.append(HGStatics.POSITIVE_COLOR);
 			}
 			sb.append("[");
-			sb.append(play.getDisplayName());
+			sb.append(play.getName());
 			sb.append("] ");
 		}
 		return (sb.toString());
 	}
+	
 
 	public String getWorldList(Player player) {
 		ArrayList<World> worlds = (ArrayList<World>) plugin.getServer().getWorlds();
@@ -299,6 +301,20 @@ public class HGMessageManagement {
 			}
 			sb.append(world.getName());
 			sb.append(HGStatics.NO_COLOR);
+		}
+		return sb.toString();
+	}
+
+	public String getMaterialList(String material) {
+		StringBuilder sb = new StringBuilder();
+		for (Material mat : Material.values()) {
+			if (mat.toString().toLowerCase().matches(".*("+material.toLowerCase()+").*")) {
+				sb.append("[");
+				sb.append(HGStatics.WARNING_COLOR);
+				sb.append(mat.toString());
+				sb.append(HGStatics.NO_COLOR);
+				sb.append("] ");
+			}
 		}
 		return sb.toString();
 	}
@@ -325,7 +341,7 @@ public class HGMessageManagement {
 			StringBuilder newline = new StringBuilder(line);
 			while (true) {
 				try {
-					initialToken = findToken(newline,HGStatics.MOTD_SPECIAL_CHAR,0);
+					initialToken = findToken(newline,HGStatics.MOTD_SPECIAL_CHARS,0);
 					String testString = newline.toString();
 					if (initialToken == -1) {
 						break; //to next line
@@ -366,47 +382,48 @@ public class HGMessageManagement {
 					//more complex tokens
 
 					//set item in hand
-					if ((beginToken = findToken(newline,HGStatics.MOTD_HOLD,0)) != -1) {
-						if ((endToken = findToken(newline,HGStatics.MOTD_SPECIAL_CHAR,beginToken + 1)) != -1) {
-							String material = newline.substring(beginToken + HGStatics.MOTD_HOLD.length(),endToken);
-							HGInventoryManagement.setItemInHand(player, material, 1);
-							newline.delete(beginToken, endToken+1);
-						} else {
-							warn("Error in " + HGStatics.MOTD_FILE + " Unable to find end token for " + 
-									HGStatics.MOTD_HOLD + "in this line: " + line);
+					for (String specialChar : HGStatics.MOTD_SPECIAL_CHARS) {
+						if ((beginToken = findToken(newline,(specialChar + HGStatics.MOTD_HOLD),0)) != -1) {
+							if ((endToken = findToken(newline,specialChar,beginToken + 1)) != -1) {
+								String material = newline.substring(beginToken + (specialChar + HGStatics.MOTD_HOLD).length(),endToken);
+								HGInventoryManagement.setItemInHand(player, material, 1);
+								newline.delete(beginToken, endToken+1);
+							} else {
+								warn("Error in " + HGStatics.MOTD_FILE + " Unable to find end token for " + 
+										HGStatics.MOTD_HOLD + "in this line: " + line);
+							}
+						}
+						//teleport
+						if ((beginToken = findToken(newline,(specialChar + HGStatics.MOTD_PORT),0)) != -1) {
+							if ((endToken = findToken(newline,specialChar,beginToken + 1)) != -1) {
+								String location = newline.substring(beginToken + (specialChar + HGStatics.MOTD_PORT).length(),endToken);
+								//get world,x,y,z
+								String[] elements = location.split(",");
+								if (elements.length != 4){
+									warn("Not enough info to teleport from MOTD, please revise.[worldname,x,y,z]");
+								}
+								double x = 0;
+								double y = 0;
+								double z = 0;
+								World world = plugin.getServer().getWorld(elements[0]);
+								try {
+									x = Double.valueOf(elements[1]);
+									y = Double.valueOf(elements[2]);
+									z = Double.valueOf(elements[3]);
+								} catch (NumberFormatException e) {
+									warn("Not enough info to teleport from MOTD, please revise.[worldname,x,y,z]");
+									break;
+								}
+								if (world != null) {
+									player.teleportTo(new Location(world, x, y, z));
+								}
+								newline.delete(beginToken, endToken+1);
+							} else {
+								warn("Error in " + HGStatics.MOTD_FILE + " Unable to find end token for " + 
+										HGStatics.MOTD_PORT + "in this line: " + line);
+							}
 						}
 					}
-					//teleport
-					if ((beginToken = findToken(newline,HGStatics.MOTD_PORT,0)) != -1) {
-						if ((endToken = findToken(newline,HGStatics.MOTD_SPECIAL_CHAR,beginToken + 1)) != -1) {
-							String location = newline.substring(beginToken + HGStatics.MOTD_PORT.length(),endToken);
-							//get world,x,y,z
-							String[] elements = location.split(",");
-							if (elements.length != 4){
-								warn("Not enough info to teleport from MOTD, please revise.[worldname,x,y,z]");
-							}
-							double x = 0;
-							double y = 0;
-							double z = 0;
-							World world = plugin.getServer().getWorld(elements[0]);
-							try {
-								x = Double.valueOf(elements[1]);
-								y = Double.valueOf(elements[2]);
-								z = Double.valueOf(elements[3]);
-							} catch (NumberFormatException e) {
-								warn("Not enough info to teleport from MOTD, please revise.[worldname,x,y,z]");
-								break;
-							}
-							if (world != null) {
-								player.teleportTo(new Location(world, x, y, z));
-							}
-							newline.delete(beginToken, endToken+1);
-						} else {
-							warn("Error in " + HGStatics.MOTD_FILE + " Unable to find end token for " + 
-									HGStatics.MOTD_PORT + "in this line: " + line);
-						}
-					}
-
 					if (testString.equals(newline.toString())) {
 						//no change, nextline
 						break;
@@ -422,24 +439,36 @@ public class HGMessageManagement {
 		} // no more lines
 	}
 
+	public int findToken(StringBuilder line,String[] tokens,int startIndex) {
+		int found = -1;
+		for (String token : tokens) {
+			if (line.indexOf(token,startIndex) != -1) {
+				found = findToken(line,token,startIndex);
+			}
+		}
+		return found;
+	}
+	
 	public int findToken(StringBuilder line,String token,int startIndex) {
-		return line.indexOf(token,startIndex);		
+		return line.indexOf(token,startIndex);
 	}
 
 	//replaces basic this for that tokens
 	public StringBuilder replaceBasic(StringBuilder newline,String token, String replacement) throws Exception {
 		int beginToken = -1;
 		int endToken = -1;
-		if ((beginToken = findToken(newline,token,0)) != -1) {
-			if ((endToken = findToken(newline,HGStatics.MOTD_SPECIAL_CHAR,beginToken + 1)) != -1) {
-				//replace token with info
-				newline.replace(beginToken, endToken+1, replacement);
-			} else {
-				warn("Error in " + HGStatics.MOTD_FILE + " Unable to find end token for " + 
-						token + "in this line: " + newline);
-				throw new Exception("parse error");
-			}
-		} //token not found
+		for (String specialChar : HGStatics.MOTD_SPECIAL_CHARS) {
+			if ((beginToken = findToken(newline,(specialChar + token),0)) != -1) {
+				if ((endToken = findToken(newline,specialChar,beginToken + 1)) != -1) {
+					//replace token with info
+					newline.replace(beginToken, endToken+1, replacement);
+				} else {
+					warn("Error in " + HGStatics.MOTD_FILE + " Unable to find end token for " + 
+							token + "in this line: " + newline);
+					throw new Exception("parse error");
+				}
+			} //token not found
+		}
 		return newline;
 	}
 }
