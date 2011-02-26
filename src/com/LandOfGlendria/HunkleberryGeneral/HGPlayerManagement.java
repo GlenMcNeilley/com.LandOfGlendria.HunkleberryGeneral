@@ -216,6 +216,16 @@ public class HGPlayerManagement {
 				.append(").").toString());
 		return null;
 	}
+	
+	public void teleportToSpawn(Player player) {
+		CraftWorld cworld = (CraftWorld) player.getWorld();
+		net.minecraft.server.WorldServer wserver = cworld.getHandle();
+		double dX = wserver.q.c() + .5;
+		double dY = wserver.q.d();
+		double dZ = wserver.q.e() + .5;
+		msg.sendPositiveMessage(player, "Teleporting to spawn point.");
+		player.teleportTo(new Location(player.getWorld(), dX, dY, dZ));
+	}
 
 	public String stratum(Player player, int strataToJump) {
 		HashSet<Byte> blocks = new HashSet<Byte>();

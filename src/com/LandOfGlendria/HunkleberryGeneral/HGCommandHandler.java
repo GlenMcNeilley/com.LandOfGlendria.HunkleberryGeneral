@@ -8,6 +8,7 @@ import org.bukkit.craftbukkit.CraftWorld;
 import org.bukkit.craftbukkit.entity.CraftLivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.util.Vector;
 
 public class HGCommandHandler {
 
@@ -221,6 +222,7 @@ public class HGCommandHandler {
 		if (cmd == HGCommandData.LOC) {
 			msg.sendPositiveMessage(player, playerManager.getLocation(player));
 		}
+		
 		if (cmd == HGCommandData.STRATUM) {
 			int strataToJump = 0;
 			if (commandArray.length > 1) {
@@ -235,6 +237,11 @@ public class HGCommandHandler {
 				}
 			}
 			return playerManager.stratum(player, strataToJump);
+		}
+		
+		if (cmd == HGCommandData.SPAWN) {
+			playerManager.teleportToSpawn(player);
+			return null;
 		}
 		
 		if (cmd == HGCommandData.MOTD) {
@@ -320,6 +327,30 @@ public class HGCommandHandler {
 			}
 			player.setCompassTarget(location);
 		}
+		if (cmd == HGCommandData.COMPASS) {
+			Vector lookingAt = player.getLocation().getDirection();
+			double radians = Math.atan2(lookingAt.getX(), lookingAt.getZ());
+			double s = Math.PI/8;
+			String facing = new String("Nowhere");
+			if ((radians > -(s) && radians <= 0) || radians > 0 && radians <= s){
+				facing = "North";
+			} else if (radians > s && radians <= s*3){
+				facing = "NorthWest";
+			} else if (radians > s*3 && radians <= s*5){
+				facing = "West";
+			} else if (radians > s*5 && radians <= s*7){
+				facing = "SouthWest";
+			} else if (radians > s*7 || radians <= -(s*7)){
+				facing = "South";
+			} else if (radians > -(s*7) && radians <= -(s*5)){
+				facing = "SouthEast";
+			} else if (radians > -(s*5) && radians <= -(s*3)){
+				facing = "East";
+			} else if (radians > -(s*3) && radians <= -(s)){
+				facing = "NorthEast";
+			}
+			msg.sendPositiveMessage(player,"You are facing: " + facing);	
+		}
 		
 		if (cmd == HGCommandData.LIST_PLAYERS) {
 			World world = null;
@@ -376,10 +407,11 @@ public class HGCommandHandler {
 				String receiverName = commandArray[index];
 				Player receiver = playerManager.resolvePlayer(receiverName);;
 				if (receiver == null) {
-					return msg.formatInvalidArgs(receiverName, "Invalid player name");
+					resolvedPlayer = player;
+				} else {
+					resolvedPlayer = receiver;
+					index++;
 				}
-				resolvedPlayer = receiver;
-				index++;
 			} else {
 				resolvedPlayer = player;
 			}
