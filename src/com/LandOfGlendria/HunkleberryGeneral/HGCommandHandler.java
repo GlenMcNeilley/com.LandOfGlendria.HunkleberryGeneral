@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.logging.Logger;
 import org.bukkit.*;
 import org.bukkit.block.Block;
+import org.bukkit.craftbukkit.CraftWorld;
 import org.bukkit.craftbukkit.entity.CraftLivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
@@ -212,7 +213,9 @@ public class HGCommandHandler {
 			} else {
 				return ("First argument must be the name of the player whose name is to be changed.");
 			}
-			return playerManager.setDisplayName(player, newName, indexAndColors);
+			
+			return playerManager.setDisplayName(receiver, player, newName, indexAndColors);
+			
 		}
 
 		if (cmd == HGCommandData.LOC) {
@@ -241,6 +244,112 @@ public class HGCommandHandler {
 			if (HGStatics.MOTD_STRING != null) {
 				msg.parseMotdForPlayer(player,new String(HGStatics.MOTD_STRING));
 			}
+			return null;
+		}
+		
+		if (cmd == HGCommandData.PLAYER_INFO) {
+			if (commandArray.length != 2) {
+				return ("Invalid Arguments.");
+			}
+			Player resolvedPlayer = playerManager.resolvePlayer(commandArray[1]);
+			msg.sendPositiveMessage(player, resolvedPlayer.getName());
+			msg.sendPositiveMessage(player, resolvedPlayer.getDisplayName());
+			msg.sendPositiveMessage(player, "Location: " + player.getWorld().getName() + " ( " + resolvedPlayer.getLocation().getBlockX() + " , " + 
+					resolvedPlayer.getLocation().getBlockY() + " , " + 
+					resolvedPlayer.getLocation().getBlockZ() + " )" );
+			msg.sendPositiveMessage(player, resolvedPlayer.getAddress().toString());
+			if (resolvedPlayer.isOp()) {
+				msg.sendPositiveMessage(player, "Is an Op.");
+			} else {
+				msg.sendPositiveMessage(player, "Is not an Op.");
+			}
+		}
+		
+		if (cmd == HGCommandData.SET_COMPASS) {
+			Player resolvedPlayer = null;
+			Location location = null;
+			int locX = 0;
+			int locY = 0;
+			int locZ = 0;
+			for (int i = 1;i<commandArray.length;i++) {
+				//here
+				if (resolvedPlayer == null && location == null) {
+					if (commandArray[i].equalsIgnoreCase(HGStatics.HERE)) {
+						location=player.getLocation();
+						msg.sendPositiveMessage(player,"Setting compass target to this location.");
+						break;
+					}
+				}
+				//player
+				if (resolvedPlayer == null && location == null) {
+					resolvedPlayer = playerManager.resolvePlayer(commandArray[i]);
+					if (resolvedPlayer != null) {
+						location = resolvedPlayer.getLocation();
+						msg.sendPositiveMessage(player,"Setting compass target to current location of player " + resolvedPlayer.getName() + ".");
+						break;
+					}
+				}
+				//xyz
+				if (location == null && commandArray.length - i >= 2) {
+					try {
+						locX = Integer.valueOf(Integer.parseInt(commandArray[i]));
+						locY = Integer.valueOf(Integer.parseInt(commandArray[i + 1]));
+						locZ = Integer.valueOf(Integer.parseInt(commandArray[i + 2]));
+						i += 3;
+						location = new Location(player.getWorld(), locX, locY, locZ);
+						msg.sendPositiveMessage(player,"Setting compass target to ( " + locX + " , " + locY + " , " + locZ + " ).");
+						break;
+					} catch (NumberFormatException e) {
+						//continue;
+					} 
+				} else {
+					return msg.formatInvalidArgs(commandArray[i], "Invalid argument, not a player, 'here', or complete integer coordinate triplet");
+				}
+			}
+			if (location == null) {
+				CraftWorld cworld = (CraftWorld) player.getWorld();
+				net.minecraft.server.WorldServer wserver = cworld.getHandle();
+				locX = wserver.q.c();
+				locY = wserver.q.d();
+				locZ = wserver.q.e();
+				location = new Location(player.getWorld(), locX, locY, locZ);
+				msg.sendPositiveMessage(player,"Setting compass target to world spawn point.");
+			}
+			player.setCompassTarget(location);
+		}
+		
+		if (cmd == HGCommandData.LIST_PLAYERS) {
+			World world = null;
+			int qualifier = -1;
+			for (int i = 1;i<commandArray.length;i++) {
+				if (world == null) {
+					world = plugin.getServer().getWorld(commandArray[i]);
+					if (world != null) {
+						continue;
+					}
+				}
+				if (HGStatics.BRIEF.equalsIgnoreCase(commandArray[i])) {
+					qualifier = 0;
+					continue;
+				} else if (HGStatics.LONG.equalsIgnoreCase(commandArray[i])) {
+					qualifier = 1;
+					continue;
+				} else {
+					return msg.formatInvalidArgs(commandArray[i],"Not world or expected qualifier");
+				}
+			}
+			
+			StringBuilder sb = new StringBuilder("Listing players");
+			if (world != null) {
+				sb.append(" in world " + world.getName());
+			}
+			if (qualifier == 0 || qualifier == -1) {
+				sb.append(" briefly.");
+			} else if (qualifier == 1) {
+				sb.append(" expanded.");
+			}
+			msg.sendPositiveMessage(player, sb.toString());
+			msg.sendPositiveMessage(player,msg.getPlayerList(world,qualifier));
 			return null;
 		}
 

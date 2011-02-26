@@ -26,6 +26,9 @@ public class HGStatics {
 	public static final String PLUGIN_NAME = HunkleberryGeneral.pdfFile.getName();
 	public static final String LOG_PREFIX = (new StringBuilder("[")).append(PLUGIN_NAME).append("]: ").toString();
 	public static final String PLUGIN_PATH = (new StringBuilder("plugins/")).append(PLUGIN_NAME).append("/").toString();
+	public static final String BRIEF = "brief";
+	public static final String LONG = "long";
+	public static final String HERE = "here";
 	public static final String BLIND = "blind";
 	public static final String NORMAL = "normal";
 	public static final String NEAT = "neat";

@@ -32,9 +32,7 @@ public class HGPlayerManagement {
 			return playerList.get(0);
 		} else if (playerArray.length > 0) {
 			for (Player play : playerArray) {
-				msg.info(play.getDisplayName().toString());
-
-				if (play.getDisplayName().contains(name)) {
+				if (msg.stripColor(play.getDisplayName()).contains(name)) {
 					return play;
 				}
 			}
@@ -59,7 +57,7 @@ public class HGPlayerManagement {
 		return null;
 	}
 
-	public String setDisplayName(Player player, String name, String colorArray) {
+	public String setDisplayName(Player player, Player sender,String name, String colorArray) {
 		StringBuffer displayName = new StringBuffer();
 		displayName.append("");
 		displayName.append(HGStatics.NO_COLOR);
@@ -104,7 +102,12 @@ public class HGPlayerManagement {
 		displayName.append(HGStatics.NO_COLOR);
 		displayName.append("");
 		player.setDisplayName(displayName.toString());
-		msg.sendPositiveMessage(player, (new StringBuilder("Set display name to ")).append(displayName.toString()).toString());
+		if (player == sender) {
+			msg.sendPositiveMessage(player, (new StringBuilder("Set display name to ")).append(displayName.toString()).toString());
+		} else {
+			msg.sendPositiveMessage(player ,(sender.getName() + " has set your display name to " + displayName + "."));
+			msg.sendPositiveMessage(sender ,("You have set " + player.getName() + "'s display name to " + displayName + "."));
+		}
 		return null;
 	}
 
@@ -206,16 +209,6 @@ public class HGPlayerManagement {
 		receiver.teleportTo(leapLocation);
 		return null;
 	}
-//
-//	public String teleport(Player player, double x, double y, double z) {
-//		player.teleportTo(new Location(player.getWorld(), x, y, z));
-//		return null;
-//	}
-//
-//	public String teleport(Player player, World world, double x, double y, double z) {
-//		player.teleportTo(new Location(world, x, y, z));
-//		return null;
-//	}
 
 	public String getLocation(Player player) {
 		Location loc = player.getLocation();

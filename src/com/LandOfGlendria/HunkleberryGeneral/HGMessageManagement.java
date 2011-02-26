@@ -118,6 +118,11 @@ public class HGMessageManagement {
 		}
 	}
 
+	public String stripColor(String message) {
+		String clear = message.replaceAll("("+HGStatics.COLOR_IND+".)", "");
+		return clear;
+	}
+
 	public void sendNegativeMessage(Player player, String message) {
 		StringBuffer sb = new StringBuffer();
 		sb.append(HGStatics.ERROR_COLOR);
@@ -270,22 +275,37 @@ public class HGMessageManagement {
 		return null;
 	}
 
-	public String getPlayerList() {
-		StringBuffer sb = new StringBuffer();
+	public String getPlayerList(World world,int qualifier) {
 		Player[] players = plugin.getServer().getOnlinePlayers();
-		for (Player play : players) {
-			if (play.isOp()){
+		StringBuilder sb = new StringBuilder();
+		sb.append(HGStatics.NO_COLOR);
+		for (Player player : players) {
+			if (world != null && !player.getWorld().equals(world)) {
+				continue;
+			}
+			sb.append("[");
+			if (player.isOp()){
 				sb.append(HGStatics.ERROR_COLOR);
 			} else {
 				sb.append(HGStatics.POSITIVE_COLOR);
 			}
-			sb.append("[");
-			sb.append(play.getName());
+			sb.append(player.getName());
+			if (qualifier == 1) {
+				if (!(player.getName().equals(player.getDisplayName()))) {
+					sb.append("/");
+					sb.append(player.getDisplayName());
+				}
+				sb.append("/");
+				sb.append(player.getWorld().getName());
+			}
+			sb.append(HGStatics.NO_COLOR);
 			sb.append("] ");
 		}
-		return (sb.toString());
+		return sb.toString();
 	}
-	
+
+			
+
 
 	public String getWorldList(Player player) {
 		ArrayList<World> worlds = (ArrayList<World>) plugin.getServer().getWorlds();
@@ -372,7 +392,7 @@ public class HGMessageManagement {
 					newline = replaceBasic(newline,HGStatics.MOTD_WORLDS,getWorldList(player));
 					newline = replaceBasic(newline,HGStatics.MOTD_DATE,
 							DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT).format(new Date()));
-					newline = replaceBasic(newline,HGStatics.MOTD_PPL,getPlayerList());
+					newline = replaceBasic(newline,HGStatics.MOTD_PPL,getPlayerList((World)null,0));
 
 					//player
 					newline = replaceBasic(newline,HGStatics.MOTD_NAME,player.getName());

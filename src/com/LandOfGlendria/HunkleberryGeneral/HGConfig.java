@@ -16,6 +16,11 @@ public class HGConfig {
 	public static PermissionHandler permissions;
 	public HGMessageManagement msg;
 	public HGCommandData commands;
+	public File aliasPropertiesFile;// = new File(HGStatics.ALIAS_PROPERTIES);
+	public File allowPropertiesFile;// = new File(HGStatics.ALLOW_PROPERTIES);
+	public File opsOnlyPropertiesFile;// = new File(HGStatics.OPSONLY_PROPERTIES);
+	public File permissionsPropertiesFile;// = new File(HGStatics.PERMISSIONS_PROPERTIES);
+
 
 	public HGConfig(Plugin plugin, HGMessageManagement msg) {
 		this.plugin = plugin;
@@ -24,6 +29,11 @@ public class HGConfig {
 		aliasProperties = new Properties();
 		opsOnlyProperties = new Properties();
 		permissionsProperties = new Properties();
+		aliasPropertiesFile = new File(HGStatics.ALIAS_PROPERTIES);
+		allowPropertiesFile = new File(HGStatics.ALLOW_PROPERTIES);
+		opsOnlyPropertiesFile = new File(HGStatics.OPSONLY_PROPERTIES);
+		permissionsPropertiesFile = new File(HGStatics.PERMISSIONS_PROPERTIES);
+
 		File file = new File(HGStatics.PLUGIN_PATH);
 		try {
 			if (!file.exists()) {
@@ -58,11 +68,6 @@ public class HGConfig {
 	}
 
 	public void managePropertyFiles() {
-		File aliasPropertiesFile = new File(HGStatics.ALIAS_PROPERTIES);
-		File allowPropertiesFile = new File(HGStatics.ALLOW_PROPERTIES);
-		File opsOnlyPropertiesFile = new File(HGStatics.OPSONLY_PROPERTIES);
-		File permissionsPropertiesFile = new File(HGStatics.PERMISSIONS_PROPERTIES);
-
 		setCurrentConfigFileProperties();
 
 		if (getPropertiesFromFile(aliasPropertiesFile, aliasProperties)) {
@@ -82,50 +87,12 @@ public class HGConfig {
 	}
 	
 	public void setCurrentConfigFileProperties() {
-		setCurrentAliasConfigFileProperties();
-		setCurrentAllowConfigFileProperties();
-		setCurrentOpsOnlyConfigFileProperties();
-		setCurrentPermissionsConfigFileProperties();
-	}
-	
-	public void setCurrentAliasConfigFileProperties() {
-		HGCommandData ahgcommanddata[];
-		int j = (ahgcommanddata = HGCommandData.values()).length;
-		for (int i = 0; i < j; i++) {
-			HGCommandData command = ahgcommanddata[i];
+		for (HGCommandData command : HGCommandData.values()) {
 			aliasProperties.setProperty(command.getDefaultCommand(), command.getCommandAlias());
-		}
-
-	}
-
-	public void setCurrentAllowConfigFileProperties() {
-		HGCommandData ahgcommanddata[];
-		int j = (ahgcommanddata = HGCommandData.values()).length;
-		for (int i = 0; i < j; i++) {
-			HGCommandData command = ahgcommanddata[i];
 			allowProperties.setProperty(command.getDefaultCommand(), Boolean.toString(command.getServerAllowed().booleanValue()));
-		}
-
-	}
-
-	public void setCurrentOpsOnlyConfigFileProperties() {
-		HGCommandData ahgcommanddata[];
-		int j = (ahgcommanddata = HGCommandData.values()).length;
-		for (int i = 0; i < j; i++) {
-			HGCommandData command = ahgcommanddata[i];
 			opsOnlyProperties.setProperty(command.getDefaultCommand(), Boolean.toString(command.getOpsOnly().booleanValue()));
-		}
-
-	}
-
-	public void setCurrentPermissionsConfigFileProperties() {
-		HGCommandData ahgcommanddata[];
-		int j = (ahgcommanddata = HGCommandData.values()).length;
-		for (int i = 0; i < j; i++) {
-			HGCommandData command = ahgcommanddata[i];
 			permissionsProperties.setProperty(command.getDefaultCommand(), command.getPermissions());
 		}
-
 	}
 
 	private boolean getPropertiesFromFile(File propertiesFile, Properties properties) {
@@ -200,29 +167,7 @@ public class HGConfig {
 		}
 	}
 
-	public void saveConfigFileProperties(File propertiesFile, Properties properties, String message) {
-		try {
-			FileOutputStream fileWriter = new FileOutputStream(propertiesFile);
-			try {
-				properties.store(fileWriter, message);
-				fileWriter.close();
-			} catch (IOException e) {
-				msg.severe("Unable to save " + propertiesFile.toString());
-				e.printStackTrace();
-			} finally {
-				fileWriter.close();
-			}
-		} catch (IOException e) {
-			msg.severe("Failed to write " + propertiesFile.toString());
-		}
-	}
-
 	public void saveConfigFileProperties() {
-		File aliasPropertiesFile = new File(HGStatics.ALIAS_PROPERTIES);
-		File allowPropertiesFile = new File(HGStatics.ALLOW_PROPERTIES);
-		File opsOnlyPropertiesFile = new File(HGStatics.OPSONLY_PROPERTIES);
-		File permissionsPropertiesFile = new File(HGStatics.PERMISSIONS_PROPERTIES);
-
 		saveConfigFileProperties(aliasPropertiesFile, aliasProperties,
 				"Use this file to set command aliases. Any alias completely overrides the default command, "
 						+ "which becomes unavailable. Change/add only values, the keys must remain unchanged " 
@@ -239,6 +184,23 @@ public class HGConfig {
 				"This file allows editing of the permissions string associated with each command. To reset a " 
 						+ "permissions string to the default value delete the entire line for the command, save "
 						+ "the file and reload the plugin.");
+	}
+	
+	public void saveConfigFileProperties(File propertiesFile, Properties properties, String message) {
+		try {
+			FileOutputStream fileWriter = new FileOutputStream(propertiesFile);
+			try {
+				properties.store(fileWriter, message);
+				fileWriter.close();
+			} catch (IOException e) {
+				msg.severe("Unable to save " + propertiesFile.toString());
+				e.printStackTrace();
+			} finally {
+				fileWriter.close();
+			}
+		} catch (IOException e) {
+			msg.severe("Failed to write " + propertiesFile.toString());
+		}
 	}
 
 	public String writeCommandsToHtmlSimple() {
@@ -270,19 +232,17 @@ public class HGConfig {
 	public String writeCommandsToBukkit() {
 		StringBuffer sb = new StringBuffer();
 		for (HGCommandData command : HGCommandData.values()) {
-			sb.append("[LIST]");
-			sb.append(HGStatics.NEW_LINE);
-			sb.append("[*][FONT=helvetica][SIZE=3][COLOR=rgb(51, 102, 255)]/");
+			sb.append("[INDENT=1][FONT=helvetica][SIZE=3][COLOR=rgb(51, 102, 255)]/");
 			sb.append(command.getCommand());
 			sb.append("[/COLOR][/SIZE][/FONT][SIZE=3]    [FONT=helvetica][COLOR=rgb(51, 153, 102)]");
 			sb.append(command.getCommandArgs());
-			sb.append("[/COLOR][/FONT][/SIZE]");
-			sb.append(HGStatics.NEW_LINE);
-			sb.append("[INDENT=1][FONT=helvetica][SIZE=3][COLOR=rgb(0, 0, 0)]    Usage: ");
+			sb.append("[/COLOR][/FONT][/SIZE][/INDENT]");
+			sb.append(HGStatics.NEW_LINE);		
+			sb.append("[INDENT=2][FONT=helvetica][SIZE=3][COLOR=rgb(0, 0, 0)]");
 			sb.append(command.getCommandUsage());
 			sb.append("[/COLOR][/SIZE][/FONT][/INDENT]");
-			sb.append(HGStatics.NEW_LINE);
-			sb.append("[/LIST]");
+			sb.append(HGStatics.NEW_LINE);		
+			sb.append("[INDENT=1][/INDENT]");
 			sb.append(HGStatics.NEW_LINE);
 		}
 		return sb.toString();
@@ -319,9 +279,6 @@ public class HGConfig {
 		if (!file.exists()) {
 			file.createNewFile();
 		}
-		// if (file.exists()) {
-		// file.createNewFile();
-		// }
 		if (!file.isFile()) {
 			msg.severe("Attempt to write file without file name.");
 			return ("File name required.");
