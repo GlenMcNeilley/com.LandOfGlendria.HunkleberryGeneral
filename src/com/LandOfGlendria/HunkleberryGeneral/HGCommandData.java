@@ -25,6 +25,7 @@ public enum HGCommandData {
 	LOC						("loc",				"hg.loc",				true,	"",	true,	"",																		"Get your current x y z location."),
 	LEAP					("leap",			"hg.loc",				true,	"",	true,	"[[worldname] [playername] [x y z]]:default=current world spawn",		"Teleport yourself to specified [player] or [world] or [world,coords] or [coords], in order of precedence, or by default, the world spawn point."),
 	FLING					("fling",			"hg.loc.other",			true,	"",	true,	"{name}[worldname] [playername] [x y z]:default=current world spawn",	"Teleport player to specified [player] or [world] or [world,coords] or [coords], in order of precedence, or by default, the world spawn point."),
+	GATHER					("gather",			"hg.loc.other",			true,	"",	true,	"[playername:default=all] [worldname:default=all]",						"Teleport a particular player (ignoring world) or everyone from a particular world, or just everyone to you."),
 	STRATUM					("strata",			"hg.loc",				true,	"",	true,	"[number:default=0]",													"Move to the nth occurrence of a solid to air transition in the direction of the crosshair."),
 	MOTD					("motd",			"hg.list",				true,	"",	true,	"",																		"Display the current world motd."),
 	SLAY_LIVING				("slay",			"hg.mobs",				true,	"",	true,	"",																		"Remove all non-player living entities from the world."),

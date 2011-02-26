@@ -285,6 +285,9 @@ public class HGCommandHandler {
 					resolvedPlayer = playerManager.resolvePlayer(commandArray[i]);
 					if (resolvedPlayer != null) {
 						location = resolvedPlayer.getLocation();
+						if (!resolvedPlayer.getWorld().equals(player.getWorld())) {
+							return "That player is in a different world.";
+						}
 						msg.sendPositiveMessage(player,"Setting compass target to current location of player " + resolvedPlayer.getName() + ".");
 						break;
 					}
@@ -343,11 +346,7 @@ public class HGCommandHandler {
 			if (world != null) {
 				sb.append(" in world " + world.getName());
 			}
-			if (qualifier == 0 || qualifier == -1) {
-				sb.append(" briefly.");
-			} else if (qualifier == 1) {
-				sb.append(" expanded.");
-			}
+			sb.append("'");
 			msg.sendPositiveMessage(player, sb.toString());
 			msg.sendPositiveMessage(player,msg.getPlayerList(world,qualifier));
 			return null;
@@ -424,7 +423,7 @@ public class HGCommandHandler {
 		
 		if (cmd == HGCommandData.LOAD_WORLD) {
 			if (commandArray.length != 2) {
-				return "Invalid Arguments";
+				return "Invalid arguments";
 			} else {
 				return worldManager.worldLoader(player,cmd,commandArray[1],null);
 			}
@@ -432,7 +431,7 @@ public class HGCommandHandler {
 		
 		if (cmd == HGCommandData.DECLARE_WORLD_ENV) {
 			if (commandArray.length != 3) {
-				return "Invalid Arguments";
+				return "Invalid arguments";
 			} else {
 				return worldManager.worldLoader(player, cmd, commandArray[1], commandArray[2]);
 			}
@@ -449,7 +448,7 @@ public class HGCommandHandler {
 				}
 				resolvedPlayer = receiver;
 			} else {
-				return "Player name is required.";
+				return "Player name is required";
 			}
 			int count = 0;
 			int index = 0;
@@ -468,6 +467,63 @@ public class HGCommandHandler {
 			return playerManager.leap(player,player,commandArray);
 		}
 		
+		if (cmd == HGCommandData.GATHER) {
+			World world = null;
+			Player resolvedPlayer = null;
+			for (int i = 1 ; i < commandArray.length;i++) {
+				if (resolvedPlayer == null) {
+					resolvedPlayer = playerManager.resolvePlayer(commandArray[i]);
+					if (resolvedPlayer != null) {
+						continue;
+					}
+				}
+				if (world == null) {
+					world = plugin.getServer().getWorld(commandArray[i]);
+					if (world != null) {
+						continue;
+					}
+				}
+				return ("Invalid arguments, unable to match to player or world name.");
+			}
+			if (resolvedPlayer != null) {
+				msg.sendPositiveMessage(player, "Teleporting " + resolvedPlayer.getName() + " to you.");
+				resolvedPlayer.teleportTo(player.getLocation());
+				return null;
+			}
+			Player[] players = plugin.getServer().getOnlinePlayers();
+			if (players.length > 1) {
+				StringBuilder sb = new StringBuilder();
+				sb.append("Teleporting ");
+				int gathered = 0;
+				for (Player toGather : players ) {
+					if (!toGather.equals(player)) {
+						if (world == null) {
+							sb.append(toGather.getName());
+							sb.append(" ");
+							toGather.teleportTo(player.getLocation());
+							gathered++;
+						} else {
+							if (player.getWorld().equals(world)) {
+								sb.append(toGather.getName());
+								sb.append(" ");
+								toGather.teleportTo(player.getLocation());
+								gathered++;
+							}
+						}
+					}
+				}
+				sb.append("to you.");
+				if (gathered > 0) {
+					msg.sendPositiveMessage(player, sb.toString());
+				} else {
+					msg.sendNegativeMessage(player, "Unable to find any players to teleport to you.");
+				}
+				return null;
+			} else {
+				msg.sendNegativeMessage(player, "Unable to find any players to teleport to you.");
+			}
+		}
+
 		if (cmd == HGCommandData.SET_SPAWN) {
 			World world = null;
 			int x = 0;
@@ -535,32 +591,85 @@ public class HGCommandHandler {
 					return "Unable to determine target block.";
 				}
 			} else if (commandArray.length > commandIndex && commandArray[commandIndex] != null) {
-			//ITEM BY NAME
-				try {
-					Material mat = Material.matchMaterial(commandArray[commandIndex]);
-					if (mat != null) {
-						itemNumber = mat.getId();
-						commandIndex++;
+				//ITEM BY NAME
+				//better matching?
+				Material mat = Material.matchMaterial(commandArray[commandIndex]);
+				if (mat == null) {
+					String[] parts = commandArray[commandIndex].replace('_', ' ').replace('.',' ').split(" ");
+					StringBuilder regex = new StringBuilder();
+					int i = 0;
+					regex.append(".*(");
+					String startString = new String();
+					for (String part : parts){
+						if (i > 0) {
+							regex.append(".*");
+						}
+						regex.append(part.toLowerCase());
+						startString += part.toLowerCase();
+						i++;
 					}
-				} catch (NumberFormatException e) {
-					return msg.formatInvalidArgs(commandArray[commandIndex], "Invalid item number");
+					regex.append(").*");
+					int regexCount = 0;
+					int startCount = 0;
+					Material[] matRegexArray = new Material[20];
+					Material[] matStartArray = new Material[20];
+					for (Material possible : Material.values()) {
+						if (regexCount > 19) {
+							return msg.formatInvalidArgs(commandArray[commandIndex], "Too many matches, be more specific.");
+						}
+						if (possible.name().toLowerCase().matches(regex.toString())) {
+							matRegexArray[regexCount] = possible;
+							regexCount++;
+						}
+						if (possible.name().replaceAll("_","").toLowerCase().startsWith(startString)) {
+							matStartArray[startCount] = possible;
+							startCount++;
+						}
+					}
+					if (regexCount == 1) {
+						itemNumber = matRegexArray[0].getId();
+						commandIndex++;
+					} else if (startCount == 1) {
+						itemNumber = matStartArray[0].getId();
+						commandIndex++;
+					} else if (regexCount > 1 || startCount > 1) {
+						StringBuilder sb = new StringBuilder("Possible material matches are:");
+						for (Material match : matRegexArray ) {
+							if (match != null) {
+								sb.append(" [");
+								sb.append(match.name());
+								sb.append("]");		
+							}
+						}sb.append(": Which contain the words, and :");
+						for (Material match : matStartArray ) {
+							if (match != null) {
+								sb.append(" [");
+								sb.append(match.name());
+								sb.append("]");		
+							}
+						}sb.append(": Which start with the words.");
+						return sb.toString();
+					}
+				} else {
+					itemNumber = mat.getId();
+					commandIndex++;
 				}
-			} else if (commandArray.length > commandIndex && commandArray[commandIndex] != null) {
-			//ITEM BY ID
-				try {
-					itemNumber = Integer.parseInt(commandArray[commandIndex]);
-					if (Material.getMaterial(itemNumber) == null) {
-						return msg.formatInvalidArgs(commandArray[commandIndex], "Invalid item number");
-					} else {
-						commandIndex++;
+				if (itemNumber == -1) {
+				//ITEM BY ID
+					try {
+						itemNumber = Integer.parseInt(commandArray[commandIndex]);
+						if (Material.getMaterial(itemNumber) == null) {
+							return msg.formatInvalidArgs(commandArray[commandIndex], "Unable to determing material");
+						} else {
+							commandIndex++;
+						}
+					} catch (NumberFormatException e) {
+						return msg.formatInvalidArgs(commandArray[commandIndex], "Unable to determing material");
 					}
-				} catch (NumberFormatException e) {
-					return msg.formatInvalidArgs(commandArray[commandIndex], "Invalid item number");
 				}
 			} else {
 				return "Item number or name required.";
 			}
-			
 			//QUANTITY
 			if (commandArray.length > commandIndex && commandArray[commandIndex] != null) {
 				try {

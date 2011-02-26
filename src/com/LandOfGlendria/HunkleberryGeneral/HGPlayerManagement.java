@@ -230,13 +230,12 @@ public class HGPlayerManagement {
 			Iterator<Block> iterator = blockList.iterator();
 			while (iterator.hasNext()) {
 				Block block = (Block) iterator.next();
-				if (block.getY() < 3 || block.getY() > 123) {
+				if (block.getY() < 3 || block.getY() > 124) {
 					break;
 				}
 				if (solidFound && HGStatics.AirBlocks.contains((Byte)((byte)(block.getTypeId())))) {
 					if (strataCount == strataToJump) {
-						//HGStatics.AirBlocks.contains((Byte)((byte)(testingBlock.getFace(BlockFace.DOWN).getTypeId())))
-						if (!HGStatics.AirBlocks.contains((Byte)((byte)(block.getFace(BlockFace.UP).getTypeId())))) {
+						if (!HGStatics.AirBlocks.contains(Byte.valueOf((byte)block.getFace(BlockFace.UP).getTypeId()))) {
 							continue;
 						}
 						block = getFloor(block);
@@ -267,9 +266,7 @@ public class HGPlayerManagement {
 				if (loc != null) {
 					break;
 				}
-
 			}
-
 		}
 		if (loc != null) {
 			loc.setPitch(player.getLocation().getPitch());
