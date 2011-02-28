@@ -8,7 +8,6 @@ import net.minecraft.server.EntityItem;
 import org.bukkit.*;
 import org.bukkit.craftbukkit.CraftWorld;
 import org.bukkit.craftbukkit.entity.CraftItem;
-import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.entity.*;
 import org.bukkit.plugin.Plugin;
 
@@ -24,22 +23,15 @@ public class HGWorldManagement {
 
 	public String removeNonPlayerEntities(Player player) {
 		ArrayList<LivingEntity> entityList = (ArrayList<LivingEntity>) player.getWorld().getLivingEntities();
-		CraftPlayer craftPlayer = null;
 		int killcount = 0;
 		Iterator<LivingEntity> iterator = entityList.iterator();
 		while (iterator.hasNext()) {
 			LivingEntity entity = (LivingEntity) iterator.next();
-			try {
-				craftPlayer = (CraftPlayer) entity;
-			} catch (ClassCastException e) {
-				entity.setHealth(0);
-				killcount++;
-				continue;
-			}
-			if (!craftPlayer.isPlayer()) {
-				entity.setHealth(0);
-				killcount++;
-			}
+		   	if (entity instanceof Player) {
+		   		continue;
+		   	}
+		   	entity.setHealth(0);
+		   	killcount++;
 		}
 		msg.sendPositiveMessage(player, ("Removed " + killcount + " living entities."));
 		return null;

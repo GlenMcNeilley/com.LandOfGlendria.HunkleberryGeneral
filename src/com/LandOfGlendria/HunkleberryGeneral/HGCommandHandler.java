@@ -1,13 +1,13 @@
 package com.LandOfGlendria.HunkleberryGeneral;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.logging.Logger;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.craftbukkit.CraftWorld;
 import org.bukkit.craftbukkit.entity.CraftLivingEntity;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.util.Vector;
 
 public class HGCommandHandler {
@@ -20,14 +20,14 @@ public class HGCommandHandler {
 	private HGWorldManagement worldManager;
 	private HGTimeManagement timeManager;
 	private HGPluginManagement pluginManager;
-	private Plugin plugin;
+	private HunkleberryGeneral plugin;
 
-	public HGCommandHandler(Plugin plugin, HGMessageManagement msg) {
+	public HGCommandHandler(HunkleberryGeneral plugin, HGMessageManagement msg,HGBouncer bouncer) {
 		this.plugin = plugin;
 		this.msg = msg;
 		config = HunkleberryGeneral.config;
 		pluginManager = new HGPluginManagement(plugin,msg);
-		playerManager = new HGPlayerManagement(plugin,msg);
+		playerManager = new HGPlayerManagement(plugin,msg,bouncer);
 		inventoryManager = new HGInventoryManagement(msg);
 		worldManager = new HGWorldManagement(plugin, msg);
 		timeManager = new HGTimeManagement(msg);
@@ -178,7 +178,7 @@ public class HGCommandHandler {
 				return message;
 			}
 			if (player != resolvedPlayer) {
-				msg.sendPositiveMessage(player, (new StringBuilder("Healed by ")).append(player.getDisplayName()).toString());
+				msg.sendPositiveMessage(resolvedPlayer, (new StringBuilder("Healed by ")).append(player.getDisplayName()).toString());
 				msg.sendPositiveMessage(player, (new StringBuilder("Healed ")).append(resolvedPlayer.getDisplayName()).append(".").toString());
 			} else {
 				msg.sendPositiveMessage(player, "Fully healed.");
@@ -333,21 +333,21 @@ public class HGCommandHandler {
 			double s = Math.PI/8;
 			String facing = new String("Nowhere");
 			if ((radians > -(s) && radians <= 0) || radians > 0 && radians <= s){
-				facing = "North";
-			} else if (radians > s && radians <= s*3){
-				facing = "NorthWest";
-			} else if (radians > s*3 && radians <= s*5){
 				facing = "West";
-			} else if (radians > s*5 && radians <= s*7){
+			} else if (radians > s && radians <= s*3){
 				facing = "SouthWest";
-			} else if (radians > s*7 || radians <= -(s*7)){
+			} else if (radians > s*3 && radians <= s*5){
 				facing = "South";
-			} else if (radians > -(s*7) && radians <= -(s*5)){
+			} else if (radians > s*5 && radians <= s*7){
 				facing = "SouthEast";
-			} else if (radians > -(s*5) && radians <= -(s*3)){
+			} else if (radians > s*7 || radians <= -(s*7)){
 				facing = "East";
-			} else if (radians > -(s*3) && radians <= -(s)){
+			} else if (radians > -(s*7) && radians <= -(s*5)){
 				facing = "NorthEast";
+			} else if (radians > -(s*5) && radians <= -(s*3)){
+				facing = "North";
+			} else if (radians > -(s*3) && radians <= -(s)){
+				facing = "NorthWest";
 			}
 			msg.sendPositiveMessage(player,"You are facing: " + facing);	
 		}
@@ -782,6 +782,27 @@ public class HGCommandHandler {
 			return null;
 		}
 		
+		if (cmd == HGCommandData.BOUNCE ||
+				cmd == HGCommandData.UNBOUNCE ||
+				cmd == HGCommandData.BOUNCE_IP ||
+				cmd == HGCommandData.UNBOUNCE ||
+				cmd == HGCommandData.FORCE_BOUNCE) {
+			if (commandArray.length > 1 ) {
+				return playerManager.bounce(player,cmd,commandArray);
+			} else {
+				return ("Invalid arguments.");
+			}
+		}
+		
+		if (cmd == HGCommandData.LIST_BOUNCED) {
+				msg.sendPositiveMessage(player, "Bounced: " + playerManager.getBouncedList());
+		}
+		
+		if (cmd == HGCommandData.RELOAD_BOUNCED) {
+			playerManager.reloadBouncer();
+			msg.sendPositiveMessage(player, "Reloaded bounce list. " + playerManager.getBouncedList());
+		}
+		
 		if (cmd == HGCommandData.WRITE_COMMAND_HTML) {
 			try {
 				config.writeFile(HGStatics.COMMAND_HTML_FILE,(config.writeCommandsToHtmlSimple()),HGStatics.OVERWRITE);
@@ -793,6 +814,24 @@ public class HGCommandHandler {
 		} 
 		
 		if (cmd == HGCommandData.WRITE_COMMAND_BUKKIT) {
+			try {
+				config.writeFile(HGStatics.COMMAND_BUKKIT_FILE,(config.writeCommandsToBukkit()),HGStatics.OVERWRITE);
+			} catch (IOException e) {
+				msg.severe("Failed attempt to write file.");
+				return ("Unable to write file.");
+			}
+			return null;
+		} 
+		if (cmd == HGCommandData.WRITE_COMMAND_YAML) {
+			try {
+				config.writeFile(HGStatics.COMMAND_YAML_FILE,(config.writePluginYaml()),HGStatics.OVERWRITE);
+			} catch (IOException e) {
+				msg.severe("Failed attempt to write file.");
+				return ("Unable to write file.");
+			}
+			return null;
+		} 
+		if (cmd == HGCommandData.WRITE_COMMAND_BUKKIT) {
 			log.info(config.writeCommandsToBukkit());
 			return null;
 		}
@@ -800,13 +839,18 @@ public class HGCommandHandler {
 		if (cmd == HGCommandData.SAVE_PROPERTIES) {
 			msg.sendPositiveMessage(player, "Saving command changes to properties files.");
 			config.setCurrentConfigFileProperties();
-			config.saveConfigFileProperties();
+			try {
+				config.saveConfigFileProperties();
+			} catch (IOException e) {
+				e.printStackTrace();
+				return ("Error writing properties file. See server console.");
+			}
 			return null;
 		}
 		
 		if (cmd == HGCommandData.RELOAD_PROPERTIES) {
-			msg.sendPositiveMessage(player, "Reloading commands and applying properties files settings");
-			config.managePropertyFiles();
+			msg.sendPositiveMessage(player, "Reloading commands and applying properties files settings. Clearing all non-saved changes.");
+			config.reloadCommandsFromPropertyFiles();
 			return null;
 		}
 		
@@ -824,6 +868,7 @@ public class HGCommandHandler {
 						}
 					}
 					commandToChange.setCommandAlias(newValue);
+					plugin.getMyCommand(commandToChange.getDefaultCommand()).setAliases(Arrays.asList(newValue));
 					HGCommandData.reloadLookup();
 					if (commandArray.length > 2) {
 						msg.sendPositiveMessage(player,"Set alias of [/" + newValue + "] for command [/" + command + "].");

@@ -15,11 +15,10 @@ public class HGConfig {
 	private Properties permissionsProperties;
 	public static PermissionHandler permissions;
 	public HGMessageManagement msg;
-	public HGCommandData commands;
-	public File aliasPropertiesFile;// = new File(HGStatics.ALIAS_PROPERTIES);
-	public File allowPropertiesFile;// = new File(HGStatics.ALLOW_PROPERTIES);
-	public File opsOnlyPropertiesFile;// = new File(HGStatics.OPSONLY_PROPERTIES);
-	public File permissionsPropertiesFile;// = new File(HGStatics.PERMISSIONS_PROPERTIES);
+	public File aliasPropertiesFile;
+	public File allowPropertiesFile;
+	public File opsOnlyPropertiesFile;
+	public File permissionsPropertiesFile;
 
 
 	public HGConfig(Plugin plugin, HGMessageManagement msg) {
@@ -50,8 +49,7 @@ public class HGConfig {
 
 		} catch (Exception e) {
 			msg.severe((new StringBuilder("Caught ")).append(e.getClass().getName()).append(" in HGConfig().").toString());
-			//msg.info(
-					e.printStackTrace(); //);
+			e.printStackTrace(); 
 		}
 	}
 
@@ -68,24 +66,41 @@ public class HGConfig {
 	}
 
 	public void managePropertyFiles() {
-		setCurrentConfigFileProperties();
-
-		if (getPropertiesFromFile(aliasPropertiesFile, aliasProperties)) {
-			applyAliasPropertyFileChanges();
+		try {
+			setCurrentConfigFileProperties();
+			getPropertiesFromFile(aliasPropertiesFile, aliasProperties);
+			getPropertiesFromFile(allowPropertiesFile, allowProperties);
+			getPropertiesFromFile(opsOnlyPropertiesFile, opsOnlyProperties);
+			getPropertiesFromFile(permissionsPropertiesFile, permissionsProperties);
+			applyConfigFileChanges();
+			HGCommandData.reloadLookup();
+			saveConfigFileProperties();
+		} catch (IOException e) {
+			msg.severe("Error reading/writing properties files.");
+			e.printStackTrace();
 		}
-		if (getPropertiesFromFile(allowPropertiesFile, allowProperties)) {
-			applyAllowPropertyFileChanges();
-		}
-		if (getPropertiesFromFile(opsOnlyPropertiesFile, opsOnlyProperties)) {
-			applyOpsOnlyPropertyFileChanges();
-		}
-		if (getPropertiesFromFile(permissionsPropertiesFile, permissionsProperties)) {
-			applyPermissionsPropertyFileChanges();
-		}
-		HGCommandData.reloadLookup();
-		saveConfigFileProperties();
 	}
 	
+	public void reloadCommandsFromPropertyFiles() {
+		aliasProperties.clear();
+		allowProperties.clear();
+		opsOnlyProperties.clear();
+		permissionsProperties.clear();
+		try {
+			getPropertiesFromFile(aliasPropertiesFile, aliasProperties);
+			getPropertiesFromFile(allowPropertiesFile, allowProperties);
+			getPropertiesFromFile(opsOnlyPropertiesFile, opsOnlyProperties);
+			getPropertiesFromFile(permissionsPropertiesFile, permissionsProperties);
+			applyConfigFileChanges();
+			HGCommandData.reloadLookup();
+			setCurrentConfigFileProperties();
+			saveConfigFileProperties();
+		} catch (IOException e) {
+			msg.severe("Error reading/writing properties files.");
+			e.printStackTrace();
+		}
+	}
+
 	public void setCurrentConfigFileProperties() {
 		for (HGCommandData command : HGCommandData.values()) {
 			aliasProperties.setProperty(command.getDefaultCommand(), command.getCommandAlias());
@@ -95,83 +110,31 @@ public class HGConfig {
 		}
 	}
 
-	private boolean getPropertiesFromFile(File propertiesFile, Properties properties) {
-		try {
-			if (propertiesFile.exists()) {
-				FileInputStream fileReader = new FileInputStream(propertiesFile);
-				try {
-					properties.load(fileReader);
-				} catch (IOException e) {
-					msg.severe("Unable to load " + propertiesFile.toString());
-					e.printStackTrace();
-				} finally {
-					fileReader.close();
-				}
-			} else {
-				return false;
-			}
-			return true;
-		} catch (IOException e) {
-			msg.severe("Failed to read " + propertiesFile.toString());
-			return false;
-		}
-	}
-
-	private void applyAliasPropertyFileChanges() {
-		for (Enumeration<Object> e = aliasProperties.keys(); e.hasMoreElements(); /**/) {
-			String key = (String) e.nextElement();
-			HGCommandData command = HGCommandData.getCommandDataByName(key);
-			if (command != null) {
-				command.setCommandAlias(aliasProperties.getProperty((String) key));
-			} else {
-				allowProperties.remove((String) key);
+	public void getPropertiesFromFile(File propertiesFile, Properties properties) throws IOException {
+		if (propertiesFile.exists()) {
+			FileInputStream fileReader = new FileInputStream(propertiesFile);
+			try {
+				properties.load(fileReader);
+			} finally {
+				fileReader.close();
 			}
 		}
 	}
 
-	private void applyAllowPropertyFileChanges() {
-
-		for (Enumeration<Object> e = allowProperties.keys(); e.hasMoreElements(); /**/) {
-			String key = (String) e.nextElement();
-			HGCommandData command = HGCommandData.getCommandDataByName(key);
-			if (command != null) {
-				command.setServerAllowed(Boolean.valueOf(Boolean.parseBoolean(allowProperties.getProperty((String) key))));
-			} else {
-				allowProperties.remove((String) key);
-			}
+	private void applyConfigFileChanges() {
+		for (HGCommandData command : HGCommandData.values()) {
+			command.setCommandAlias(aliasProperties.getProperty(command.getDefaultCommand()));
+			command.setServerAllowed(Boolean.valueOf(Boolean.parseBoolean(allowProperties.getProperty(command.getDefaultCommand()))));
+			command.setOpsOnly(Boolean.valueOf(Boolean.parseBoolean(opsOnlyProperties.getProperty(command.getDefaultCommand()))));
+			command.setPermissions(permissionsProperties.getProperty(command.getDefaultCommand()));
 		}
 	}
 
-	private void applyOpsOnlyPropertyFileChanges() {
-
-		for (Enumeration<Object> e = opsOnlyProperties.keys(); e.hasMoreElements(); /**/) {
-			String key = (String) e.nextElement();
-			HGCommandData command = HGCommandData.getCommandDataByName(key);
-			if (command != null) {
-				command.setOpsOnly(Boolean.valueOf(Boolean.parseBoolean(opsOnlyProperties.getProperty((String) key))));
-			} else {
-				opsOnlyProperties.remove((String) key);
-			}
-		}
-	}
-	
-	private void applyPermissionsPropertyFileChanges() {
-		for (Enumeration<Object> e = permissionsProperties.keys(); e.hasMoreElements(); /**/) {
-			String key = (String) e.nextElement();
-			HGCommandData command = HGCommandData.getCommandDataByName(key);
-			if (command != null) {
-				command.setPermissions(permissionsProperties.getProperty((String) key));
-			} else {
-				permissionsProperties.remove((String)key);
-			}
-		}
-	}
-
-	public void saveConfigFileProperties() {
-		saveConfigFileProperties(aliasPropertiesFile, aliasProperties,
-				"Use this file to set command aliases. Any alias completely overrides the default command, "
-						+ "which becomes unavailable. Change/add only values, the keys must remain unchanged " 
-						+ "or they will be overwritten.");
+		public void saveConfigFileProperties() throws IOException{
+			saveConfigFileProperties(aliasPropertiesFile, aliasProperties,
+					"Use this file to set command aliases. Any alias completely overrides the default command, "
+							+ "which becomes unavailable. Change/add only values, the keys must remain unchanged " 
+							+ "or they will be overwritten.");
 		saveConfigFileProperties(allowPropertiesFile, allowProperties,
 				"Use this file to allow/disallow commands on a server level. A value of false or and empty "
 						+ "value will cause the command to not be recognized by the plugin for anyone. Keys "
@@ -185,23 +148,17 @@ public class HGConfig {
 						+ "permissions string to the default value delete the entire line for the command, save "
 						+ "the file and reload the plugin.");
 	}
-	
-	public void saveConfigFileProperties(File propertiesFile, Properties properties, String message) {
+
+	public void saveConfigFileProperties(File propertiesFile, Properties properties, String message) throws IOException {
+		FileOutputStream fileWriter = new FileOutputStream(propertiesFile);
 		try {
-			FileOutputStream fileWriter = new FileOutputStream(propertiesFile);
-			try {
-				properties.store(fileWriter, message);
-				fileWriter.close();
-			} catch (IOException e) {
-				msg.severe("Unable to save " + propertiesFile.toString());
-				e.printStackTrace();
-			} finally {
-				fileWriter.close();
-			}
-		} catch (IOException e) {
-			msg.severe("Failed to write " + propertiesFile.toString());
+			properties.store(fileWriter, message);
+			fileWriter.close();
+		} finally {
+			fileWriter.close();
 		}
 	}
+
 
 	public String writeCommandsToHtmlSimple() {
 		StringBuffer sb = new StringBuffer();
@@ -244,6 +201,50 @@ public class HGConfig {
 			sb.append(HGStatics.NEW_LINE);		
 			sb.append("[INDENT=1][/INDENT]");
 			sb.append(HGStatics.NEW_LINE);
+		}
+		return sb.toString();
+	}
+
+	public String writePluginYaml() {
+		StringBuffer sb = new StringBuffer();
+		
+		sb.append("name: HunkleberryGeneral");
+		sb.append(HGStatics.NEW_LINE);
+		sb.append(HGStatics.NEW_LINE);
+		sb.append("main: com.LandOfGlendria.HunkleberryGeneral.HunkleberryGeneral");
+		sb.append(HGStatics.NEW_LINE);
+		sb.append(HGStatics.NEW_LINE);
+		sb.append("version: ");
+		sb.append(HGStatics.VERSION);
+		sb.append(HGStatics.NEW_LINE);
+		sb.append(HGStatics.NEW_LINE);
+		sb.append("website: TBD");
+		sb.append(HGStatics.NEW_LINE);
+		sb.append(HGStatics.NEW_LINE);
+		sb.append("description: Friendly general command plugin.");
+		sb.append(HGStatics.NEW_LINE);
+		sb.append(HGStatics.NEW_LINE);
+		sb.append("author: Glen McNeilley");
+		sb.append(HGStatics.NEW_LINE);
+		sb.append(HGStatics.NEW_LINE);				
+		sb.append("commands:");
+		sb.append(HGStatics.NEW_LINE);
+		sb.append(HGStatics.NEW_LINE);				
+		for (HGCommandData command : HGCommandData.values()) {
+			sb.append(" ");				
+			sb.append(command.getDefaultCommand());
+			sb.append(":");				
+			sb.append(HGStatics.NEW_LINE);
+			sb.append("  description: ");				
+			//sb.append(command.getCommandUsage());
+			sb.append(HGStatics.NEW_LINE);
+			sb.append("  usage: ");				
+			//sb.append(command.getCommandArgs());
+			sb.append(HGStatics.NEW_LINE);
+			//sb.append("  aliases: [");
+			//sb.append(command.getCommandAlias());
+			//sb.append("]");
+			//sb.append(HGStatics.NEW_LINE);
 		}
 		return sb.toString();
 	}

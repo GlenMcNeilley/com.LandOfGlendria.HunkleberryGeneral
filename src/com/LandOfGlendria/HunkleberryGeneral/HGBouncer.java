@@ -2,23 +2,22 @@ package com.LandOfGlendria.HunkleberryGeneral;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Enumeration;
 import java.util.Properties;
 
 import org.bukkit.plugin.Plugin;
-import java.io.*;
-import java.util.*;
+
 
 public class HGBouncer {
  
-	private Plugin plugin;
 	private Properties bouncerProperties;
 	public HGMessageManagement msg;
 	public HGConfig cfg;
 	public File bouncerPropertiesFile;
 		
 	public HGBouncer(Plugin plugin, HGMessageManagement msg, HGConfig cfg) {
-		this.plugin = plugin;
 		this.msg = msg;
 		this.cfg = cfg;
 		bouncerProperties = new Properties(); 
@@ -31,12 +30,36 @@ public class HGBouncer {
 		}
 	}
 	
+	public String getReturnTime(String bouncee) {
+		String message;
+		if (bouncerProperties.containsKey(bouncee)) {
+			if (bouncerProperties.getProperty(bouncee) != null && !bouncerProperties.getProperty(bouncee).isEmpty()) {
+				try {
+					long logintime = Long.parseLong(bouncerProperties.getProperty(bouncee));
+					message = new String("You are not allowed to log in until " + new Date(logintime).toString());
+				} catch (NumberFormatException e) {
+					message = new String("Who knows when you may log in again.");
+				}
+			} else {
+				message = new String("You are banned for life.");
+			}
+		} else {
+			message = new String("You aren't actually bounced...");
+		}
+		return message;
+	}
+	
 	public boolean getBounced(String key) throws IOException{
 		boolean stillBounced = false;
 		if (bouncerProperties.containsKey(key)) {
 			String bouncedFor = bouncerProperties.getProperty(key);
-			if (bouncedFor != null) {
-				long bouncedInMillis = Long.parseLong(bouncedFor);
+			if (bouncedFor != null && !bouncedFor.isEmpty()) {
+				long bouncedInMillis = 0;
+				try {
+					bouncedInMillis = Long.parseLong(bouncedFor);
+				} catch (NumberFormatException e) {
+					stillBounced = true;
+				}
 				if (bouncedInMillis > System.currentTimeMillis()) {
 					stillBounced = true;
 				} else {//not bounced anymore
@@ -50,14 +73,9 @@ public class HGBouncer {
 		return stillBounced;
 	}
 	
-	public boolean setBounced(String key, String value) throws IOException {
-		Object isBounced = bouncerProperties.setProperty(key,value);
-		if (isBounced == null) {
-			return false;
-		} else {
-			saveConfigFileProperties();
-			return true;
-		}
+	public void setBounced(String key, String value) throws IOException {
+		bouncerProperties.setProperty(key,value);
+		saveConfigFileProperties();
 	}
 	
 	public boolean setUnBounced(String key) throws IOException {
@@ -85,10 +103,31 @@ public class HGBouncer {
 
 	public void saveConfigFileProperties() throws IOException{
 		cfg.saveConfigFileProperties(bouncerPropertiesFile, bouncerProperties,
-				"Use this file to set bounced players by name or ip address, entries will appear as follows: "
-				+ "playerName=999999999 (bounced until system clock = 99999999), playerName= (empty value, bounced forever), "
-				+ "1.1.1.1=99999999 (ip, and/or hostname, bounced until system clock = 99999999, "
-				+ "1.1.1.1= (empty value, bounced by ip/hostname forever)");
+				"Use this file to set bounced players by name, entries will appear as follows: " + HGStatics.NEW_LINE
+				+ "#playerName=999999999 (bounced until system clock = 99999999) " + HGStatics.NEW_LINE
+				+ "#playerName= (empty value, bounced forever) " + HGStatics.NEW_LINE
+				+ "#/1.1.1.1=99999999 (ip, and/or hostname, bounced until system clock = 99999999 " + HGStatics.NEW_LINE
+				+ "#/1.1.1.1= (empty value, bounced by ip/hostname forever)"); 
 	}
-
+	
+	public ArrayList<String> getFormattedArray() { //syncronize because of this?
+		ArrayList<String>  bounced = new ArrayList<String>();
+		@SuppressWarnings("rawtypes")
+		Enumeration bouncedNames = bouncerProperties.keys();
+		while (bouncedNames.hasMoreElements()) {
+			String name = (String)bouncedNames.nextElement();
+			String value;
+			if (bouncerProperties.getProperty(name) != null && !bouncerProperties.getProperty(name).isEmpty()) {
+				try {
+					value = "|" + new Date(Long.parseLong(bouncerProperties.getProperty(name))).toString();
+				} catch (Exception e) {
+					value = new String("|unknown");
+				}
+			} else {
+				value = new String("|forever");
+			}
+			bounced.add(name + " " + value);
+		}
+		return bounced;
+	}
 }

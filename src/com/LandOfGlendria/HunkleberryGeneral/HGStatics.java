@@ -7,6 +7,7 @@ import org.bukkit.World;
 
 public class HGStatics {
 
+	public static final String VERSION = "0.67";
 	public static final Integer MAX_INVENTORY_ITEMS = Integer.valueOf(2304);
 	public static final Integer MAX_MESSAGE_LENGTH = Integer.valueOf(58);
 	public static final Integer MAX_DISTANCE = Integer.valueOf(300);
@@ -32,6 +33,7 @@ public class HGStatics {
 	public static final String BLIND = "blind";
 	public static final String NORMAL = "normal";
 	public static final String NEAT = "neat";
+	public static final String FOREVER = "forever";
 	
 	public static final byte[] SAFE_BLOCKS = {1,2,3,4,5,6,7,8,9,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,35,41,42,43,44,45,46,47,48,49,52,53,54,56,57,58,61,62,64,67,71,74,79,80,82,84,85,86,87,88,89,91};
 	public static final byte[] DANGEROUS_BLOCKS = {10,11,51,81};
@@ -44,9 +46,12 @@ public class HGStatics {
 	public static final String ALLOW_PROPERTIES = (new StringBuilder(String.valueOf(HGStatics.PLUGIN_PATH))).append("allow.properties").toString();
 	public static final String OPSONLY_PROPERTIES = (new StringBuilder(String.valueOf(HGStatics.PLUGIN_PATH))).append("opsOnly.properties").toString();
 	public static final String PERMISSIONS_PROPERTIES = (new StringBuilder(String.valueOf(HGStatics.PLUGIN_PATH))).append("permissions.properties").toString();
+	public static final String BOUNCER_PROPERTIES = (new StringBuilder(String.valueOf(HGStatics.PLUGIN_PATH))).append("bouncer.properties").toString();
 
 	
 	public static String COMMAND_HTML_FILE = (new StringBuilder(PLUGIN_PATH)).append("commands.html").toString();
+	public static String COMMAND_BUKKIT_FILE = (new StringBuilder(PLUGIN_PATH)).append("commands.bukkit").toString();
+	public static String COMMAND_YAML_FILE = (new StringBuilder(PLUGIN_PATH)).append("plugin.yaml").toString();
 	public static boolean OVERWRITE = true;
 
 	
