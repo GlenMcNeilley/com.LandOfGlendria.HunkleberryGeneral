@@ -6,6 +6,7 @@ import java.util.HashMap;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
+//import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
@@ -91,8 +92,15 @@ public class HunkleberryGeneral extends JavaPlugin {
 		pm.registerEvent(org.bukkit.event.Event.Type.PLAYER_LOGIN, listener, org.bukkit.event.Event.Priority.Normal, this);
 		pm.registerEvent(org.bukkit.event.Event.Type.PLAYER_RESPAWN, listener, org.bukkit.event.Event.Priority.Normal, this);
 		
+		
 		//iterate through my command data and set aliases and stuff
+//		SimpleCommandMap cm = new SimpleCommandMap(this.getServer());
 		for (HGCommandData command : HGCommandData.values()) {
+//			Command registeringCommand = new Command(command.getCommand());
+//			registeringCommand.setUsage(command.getCommandArgs());
+//			registeringCommand.setDescription(command.getCommandArgs());
+//			cm.register(command.getCommand(), "hg", registeringCommand);
+//		}
 			Command registeredCommand = this.getCommand(command.getDefaultCommand());
 			if (registeredCommand != null) {
 				if (command.getCommandAlias() != null && !command.getCommandAlias().isEmpty()) {
@@ -102,7 +110,7 @@ public class HunkleberryGeneral extends JavaPlugin {
 					registeredCommand.setUsage(command.getCommandArgs());
 				}
 				if (command.getCommandUsage() != null && !command.getCommandUsage().isEmpty()) {
-					registeredCommand.setTooltip(command.getCommandArgs());
+					registeredCommand.setDescription(command.getCommandArgs());
 				}
 			} else {
 				msg.severe("Command not registered " + command.getDefaultCommand());

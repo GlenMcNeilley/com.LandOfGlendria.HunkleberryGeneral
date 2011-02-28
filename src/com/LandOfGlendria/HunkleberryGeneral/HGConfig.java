@@ -68,10 +68,10 @@ public class HGConfig {
 	public void managePropertyFiles() {
 		try {
 			setCurrentConfigFileProperties();
-			getPropertiesFromFile(aliasPropertiesFile, aliasProperties);
-			getPropertiesFromFile(allowPropertiesFile, allowProperties);
-			getPropertiesFromFile(opsOnlyPropertiesFile, opsOnlyProperties);
-			getPropertiesFromFile(permissionsPropertiesFile, permissionsProperties);
+			getPropertiesFromFile(aliasPropertiesFile, aliasProperties,HGStatics.ALIAS_MESSAGE);
+			getPropertiesFromFile(allowPropertiesFile, allowProperties,HGStatics.ALLOW_MESSAGE);
+			getPropertiesFromFile(opsOnlyPropertiesFile, opsOnlyProperties,HGStatics.OPSONLY_MESSAGE);
+			getPropertiesFromFile(permissionsPropertiesFile, permissionsProperties,HGStatics.PERMISSIONS_MESSAGE);
 			applyConfigFileChanges();
 			HGCommandData.reloadLookup();
 			saveConfigFileProperties();
@@ -86,11 +86,12 @@ public class HGConfig {
 		allowProperties.clear();
 		opsOnlyProperties.clear();
 		permissionsProperties.clear();
+
 		try {
-			getPropertiesFromFile(aliasPropertiesFile, aliasProperties);
-			getPropertiesFromFile(allowPropertiesFile, allowProperties);
-			getPropertiesFromFile(opsOnlyPropertiesFile, opsOnlyProperties);
-			getPropertiesFromFile(permissionsPropertiesFile, permissionsProperties);
+			getPropertiesFromFile(aliasPropertiesFile, aliasProperties,HGStatics.ALIAS_MESSAGE);
+			getPropertiesFromFile(allowPropertiesFile, allowProperties,HGStatics.ALLOW_MESSAGE);
+			getPropertiesFromFile(opsOnlyPropertiesFile, opsOnlyProperties,HGStatics.OPSONLY_MESSAGE);
+			getPropertiesFromFile(permissionsPropertiesFile, permissionsProperties,HGStatics.PERMISSIONS_MESSAGE);
 			applyConfigFileChanges();
 			HGCommandData.reloadLookup();
 			setCurrentConfigFileProperties();
@@ -110,7 +111,7 @@ public class HGConfig {
 		}
 	}
 
-	public void getPropertiesFromFile(File propertiesFile, Properties properties) throws IOException {
+	public void getPropertiesFromFile(File propertiesFile, Properties properties,String message) throws IOException {
 		if (propertiesFile.exists()) {
 			FileInputStream fileReader = new FileInputStream(propertiesFile);
 			try {
@@ -118,6 +119,8 @@ public class HGConfig {
 			} finally {
 				fileReader.close();
 			}
+		} else {
+			saveConfigFileProperties(propertiesFile,properties,message);
 		}
 	}
 
@@ -130,23 +133,11 @@ public class HGConfig {
 		}
 	}
 
-		public void saveConfigFileProperties() throws IOException{
-			saveConfigFileProperties(aliasPropertiesFile, aliasProperties,
-					"Use this file to set command aliases. Any alias completely overrides the default command, "
-							+ "which becomes unavailable. Change/add only values, the keys must remain unchanged " 
-							+ "or they will be overwritten.");
-		saveConfigFileProperties(allowPropertiesFile, allowProperties,
-				"Use this file to allow/disallow commands on a server level. A value of false or and empty "
-						+ "value will cause the command to not be recognized by the plugin for anyone. Keys "
-						+ "missing from this file will use the default value of true, i.e., allowed. Delete "
-						+ "the file to force regeneration. Use Permissions for greater control.");
-		saveConfigFileProperties(opsOnlyPropertiesFile, opsOnlyProperties,
-				"Use this file to set commands for ops use only.  Permissions may add command use privledges "
-						+ "to other users, but cannot take away privledges from ops gained by these settings.");
-		saveConfigFileProperties(permissionsPropertiesFile, permissionsProperties,
-				"This file allows editing of the permissions string associated with each command. To reset a " 
-						+ "permissions string to the default value delete the entire line for the command, save "
-						+ "the file and reload the plugin.");
+	public void saveConfigFileProperties() throws IOException{
+		saveConfigFileProperties(aliasPropertiesFile, aliasProperties,HGStatics.ALIAS_MESSAGE);
+		saveConfigFileProperties(allowPropertiesFile, allowProperties,HGStatics.ALLOW_MESSAGE);
+		saveConfigFileProperties(opsOnlyPropertiesFile, opsOnlyProperties,HGStatics.OPSONLY_MESSAGE);
+		saveConfigFileProperties(permissionsPropertiesFile, permissionsProperties,HGStatics.PERMISSIONS_MESSAGE);
 	}
 
 	public void saveConfigFileProperties(File propertiesFile, Properties properties, String message) throws IOException {
