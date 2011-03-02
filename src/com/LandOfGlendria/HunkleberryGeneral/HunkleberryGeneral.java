@@ -1,11 +1,11 @@
 package com.LandOfGlendria.HunkleberryGeneral;
 
-import java.util.Arrays;
+//import java.util.Arrays;
 import java.util.HashMap;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.PluginCommand;
+//import org.bukkit.command.PluginCommand;
 //import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginDescriptionFile;
@@ -24,11 +24,22 @@ public class HunkleberryGeneral extends JavaPlugin {
 
 	public HunkleberryGeneral() {
 	}
-	
-	public PluginCommand getMyCommand(String name) {
-		return this.getCommand(name);
+
+//------------IFNDEF 440
+//	public PluginCommand getCommand(String name) {
+//		return this.getCommand(name);
+//	}
+/**	
+	public void setCommandAlias(String name,String newValue) {
+		Command registeringCommand = getCommand(name);
+		if (registeringCommand != null) {
+			registeringCommand.setAliases(Arrays.asList(newValue));	
+			msg.info("HG Setting alias for "+name+" to "+newValue);
+		}
 	}
-	
+*/	
+//------------IFNDEF 440
+
 	public void onEnable() {
 		pdfFile = getDescription();
 		msg = new HGMessageManagement(this);
@@ -37,86 +48,40 @@ public class HunkleberryGeneral extends JavaPlugin {
 		listener = new HGPlayerListener(this, msg, bouncer);
 		commandHandler = new HGCommandHandler(this, msg, bouncer);
 		PluginManager pm = getServer().getPluginManager();
-// this doesn't look fun
-//		getCommand("get").setExecutor(new TimePluginCommand(this));
-//		getCommand("give").setExecutor(new TimePluginCommand(this));
-//		getCommand("getblock").setExecutor(new TimePluginCommand(this));
-//		getCommand("giveblock").setExecutor(new TimePluginCommand(this));
-//		getCommand("clearinv").setExecutor(new TimePluginCommand(this));
-//		getCommand("clearinvall").setExecutor(new TimePluginCommand(this));
-//		getCommand("listinv").setExecutor(new TimePluginCommand(this));
-//		getCommand("matcontains").setExecutor(new TimePluginCommand(this));
-//		getCommand("heal").setExecutor(new TimePluginCommand(this));
-//		getCommand("setname").setExecutor(new TimePluginCommand(this));
-//		getCommand("who").setExecutor(new TimePluginCommand(this));
-//		getCommand("playerinfo").setExecutor(new TimePluginCommand(this));
-//		getCommand("colorchart").setExecutor(new TimePluginCommand(this));
-//		getCommand("setspawn").setExecutor(new TimePluginCommand(this));
-//		getCommand("setcompass").setExecutor(new TimePluginCommand(this));
-//		getCommand("compass").setExecutor(new TimePluginCommand(this));
-//		getCommand("loc").setExecutor(new TimePluginCommand(this));
-//		getCommand("leap").setExecutor(new TimePluginCommand(this));
-//		getCommand("fling").setExecutor(new TimePluginCommand(this));
-//		getCommand("gather").setExecutor(new TimePluginCommand(this));
-//		getCommand("spawn").setExecutor(new TimePluginCommand(this));
-//		getCommand("strata").setExecutor(new TimePluginCommand(this));
-//		getCommand("motd").setExecutor(new TimePluginCommand(this));
-//		getCommand("slay").setExecutor(new TimePluginCommand(this));
-//		getCommand("cleardrops").setExecutor(new TimePluginCommand(this));
-//		getCommand("gettime").setExecutor(new TimePluginCommand(this));
-//		getCommand("time").setExecutor(new TimePluginCommand(this));
-//		getCommand("listworlds").setExecutor(new TimePluginCommand(this));
-//		getCommand("loadworld").setExecutor(new TimePluginCommand(this));
-//		getCommand("createworld").setExecutor(new TimePluginCommand(this));
-//		getCommand("setworldtype").setExecutor(new TimePluginCommand(this));
-//		getCommand("hg_help").setExecutor(new TimePluginCommand(this));
-//		getCommand("listplugins").setExecutor(new TimePluginCommand(this));
-//		getCommand("bounce").setExecutor(new TimePluginCommand(this));
-//		getCommand("unbounce").setExecutor(new TimePluginCommand(this));
-//		getCommand("bounceip").setExecutor(new TimePluginCommand(this));
-//		getCommand("forcebounce").setExecutor(new TimePluginCommand(this));
-//		getCommand("listbounced").setExecutor(new TimePluginCommand(this));
-//		getCommand("loadplugin").setExecutor(new TimePluginCommand(this));
-//		getCommand("disableplugin").setExecutor(new TimePluginCommand(this));
-//		getCommand("enableplugin").setExecutor(new TimePluginCommand(this));
-//		getCommand("clearplugins").setExecutor(new TimePluginCommand(this));
-//		getCommand("writehtml").setExecutor(new TimePluginCommand(this));
-//		getCommand("bukkit").setExecutor(new TimePluginCommand(this));
-//		getCommand("setcommandalias").setExecutor(new TimePluginCommand(this));
-//		getCommand("setserverallow").setExecutor(new TimePluginCommand(this));
-//		getCommand("setopsonly").setExecutor(new TimePluginCommand(this));
-//		getCommand("setpermissions").setExecutor(new TimePluginCommand(this));
-//		getCommand("saveproperties").setExecutor(new TimePluginCommand(this));
-//		getCommand("reloadproperties").setExecutor(new TimePluginCommand(this));
+		
+//------------IFDEF 440
+//		pm.registerEvent(org.bukkit.event.Event.Type.PLAYER_COMMAND, listener, org.bukkit.event.Event.Priority.Normal, this);
+//------------ENDIFDEF 440
+		
 		pm.registerEvent(org.bukkit.event.Event.Type.PLAYER_JOIN, listener, org.bukkit.event.Event.Priority.Normal, this);
 		pm.registerEvent(org.bukkit.event.Event.Type.PLAYER_LOGIN, listener, org.bukkit.event.Event.Priority.Normal, this);
 		pm.registerEvent(org.bukkit.event.Event.Type.PLAYER_RESPAWN, listener, org.bukkit.event.Event.Priority.Normal, this);
-		
-		
-		//iterate through my command data and set aliases and stuff
-//		SimpleCommandMap cm = new SimpleCommandMap(this.getServer());
-		for (HGCommandData command : HGCommandData.values()) {
-//			Command registeringCommand = new Command(command.getCommand());
-//			registeringCommand.setUsage(command.getCommandArgs());
-//			registeringCommand.setDescription(command.getCommandArgs());
-//			cm.register(command.getCommand(), "hg", registeringCommand);
-//		}
-			Command registeredCommand = this.getCommand(command.getDefaultCommand());
-			if (registeredCommand != null) {
-				if (command.getCommandAlias() != null && !command.getCommandAlias().isEmpty()) {
-					registeredCommand.setAliases(Arrays.asList(command.getCommandAlias()));
-				}
-				if (command.getCommandArgs() != null && !command.getCommandArgs().isEmpty()) {
-					registeredCommand.setUsage(command.getCommandArgs());
-				}
-				if (command.getCommandUsage() != null && !command.getCommandUsage().isEmpty()) {
-					registeredCommand.setDescription(command.getCommandArgs());
-				}
-			} else {
-				msg.severe("Command not registered " + command.getDefaultCommand());
-			}
-		}
 
+//------------IFNDEF 440
+		
+/**			
+ 			for (HGCommandData command : HGCommandData.values()) {
+				Command registeredCommand = this.getCommand(command.getDefaultCommand());
+				if (registeredCommand != null) {
+					if (command.getCommandAlias() != null && !command.getCommandAlias().isEmpty()) {
+						setCommandAlias(command.getDefaultCommand(),command.getCommandAlias());
+					}
+					if (command.getCommandArgs() != null && !command.getCommandArgs().isEmpty()) {
+						registeredCommand.setUsage(command.getCommandArgs());
+					}
+					if (command.getCommandUsage() != null && !command.getCommandUsage().isEmpty()) {
+						registeredCommand.setTooltip(command.getCommandArgs());
+					}
+				} else {
+				msg.severe("Command not registered " + command.getDefaultCommand());
+				}
+			}
+*/
+//------------ENDIFNDEF 440
+
+			
+			
+		commandHandler.autoLoadWorlds();
 		msg.info((new StringBuilder(String.valueOf(pdfFile.getName()))).append(" version ").append(pdfFile.getVersion()).append(" is enabled").toString());
 	}
 
@@ -127,7 +92,7 @@ public class HunkleberryGeneral extends JavaPlugin {
     public boolean onCommand(CommandSender sender, Command incomingCommand, String commandLabel, String[] args) {
     	if (!(sender instanceof Player)) return false;
     	Player player = (Player)sender;
-    	
+    	msg.info("recieved command: " + incomingCommand.getName());
 		if (incomingCommand.getName().equalsIgnoreCase("hg_test")) {
 			msg.sendPositiveMessage(player,
 					(new StringBuilder(String.valueOf(HunkleberryGeneral.pdfFile.getName()))).append(" version ")

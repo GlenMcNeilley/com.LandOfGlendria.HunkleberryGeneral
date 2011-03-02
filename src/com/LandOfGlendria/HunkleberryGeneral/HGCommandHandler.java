@@ -1,10 +1,14 @@
 package com.LandOfGlendria.HunkleberryGeneral;
 
 import java.io.IOException;
-import java.util.Arrays;
+//------------IFNDEF 440
+//import java.util.Arrays;
+//------------ENDIFNDEF 440
+
 import java.util.logging.Logger;
 import org.bukkit.*;
 import org.bukkit.block.Block;
+import org.bukkit.command.Command;
 import org.bukkit.craftbukkit.CraftWorld;
 import org.bukkit.craftbukkit.entity.CraftLivingEntity;
 import org.bukkit.entity.Player;
@@ -18,6 +22,7 @@ public class HGCommandHandler {
 	private HGInventoryManagement inventoryManager;
 	private HGPlayerManagement playerManager;
 	private HGWorldManagement worldManager;
+	private HGWorldlyThings worldly;
 	private HGTimeManagement timeManager;
 	private HGPluginManagement pluginManager;
 	private HunkleberryGeneral plugin;
@@ -29,8 +34,14 @@ public class HGCommandHandler {
 		pluginManager = new HGPluginManagement(plugin,msg);
 		playerManager = new HGPlayerManagement(plugin,msg,bouncer);
 		inventoryManager = new HGInventoryManagement(msg);
-		worldManager = new HGWorldManagement(plugin, msg);
-		timeManager = new HGTimeManagement(msg);
+		worldly = new HGWorldlyThings(plugin,msg,config);
+		worldManager = new HGWorldManagement(plugin, msg, worldly);
+		timeManager = new HGTimeManagement(plugin,msg);
+	}
+	
+	public void autoLoadWorlds() {
+		worldManager.loadWorldArray(worldly.getWorldAutoLoadArray());
+		return;
 	}
 
 	public String handleCommand(Player player, HGCommandData cmd, String commandArray[]) {
@@ -310,7 +321,7 @@ public class HGCommandHandler {
 						msg.sendPositiveMessage(player,"Setting compass target to ( " + locX + " , " + locY + " , " + locZ + " ).");
 						break;
 					} catch (NumberFormatException e) {
-						//continue;
+						//inue;
 					} 
 				} else {
 					return msg.formatInvalidArgs(commandArray[i], "Invalid argument, not a player, 'here', or complete integer coordinate triplet");
@@ -466,6 +477,14 @@ public class HGCommandHandler {
 				return "Invalid arguments";
 			} else {
 				return worldManager.worldLoader(player, cmd, commandArray[1], commandArray[2]);
+			}
+		}
+		
+		if (cmd == HGCommandData.WORLD_LOAD_LIST) {
+			if (commandArray.length != 2) {
+				return "Invalid arguments";
+			} else {
+				return worldManager.worldLoadList(player, commandArray[1]);
 			}
 		}
 			
@@ -855,8 +874,10 @@ public class HGCommandHandler {
 		}
 		
 		if (cmd == HGCommandData.SET_ALIAS) {
+			return "Alias functionality temporarily removed";
+/**
 			if (commandArray.length > 1) {
-				String command = commandArray[1].replaceAll("/", "");
+				String command = commandArray[1].replaceAll("/", ""); 
 				HGCommandData commandToChange = HGCommandData.getCommandDataByName(command);
 				if (commandToChange !=null) {
 					String newValue = new String("");
@@ -868,7 +889,12 @@ public class HGCommandHandler {
 						}
 					}
 					commandToChange.setCommandAlias(newValue);
-					plugin.getMyCommand(commandToChange.getDefaultCommand()).setAliases(Arrays.asList(newValue));
+					
+//------------IFNDEF 440
+					//++++++++++++++++++++++++++
+					plugin.setCommandAlias(commandToChange.getDefaultCommand(),commandToChange.getCommandAlias());
+//------------ENDIFNDEF 440
+
 					HGCommandData.reloadLookup();
 					if (commandArray.length > 2) {
 						msg.sendPositiveMessage(player,"Set alias of [/" + newValue + "] for command [/" + command + "].");
@@ -882,6 +908,7 @@ public class HGCommandHandler {
 			} else {
 				return "Invalid Arguments";
 			}
+*/
 		}
 		
 		if (cmd == HGCommandData.SET_SERVER_ALLOW) {

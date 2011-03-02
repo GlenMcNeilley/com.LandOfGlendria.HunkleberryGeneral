@@ -25,7 +25,7 @@ public class HGStatics {
 	public static final String NETHER_ENV_FILE = (World.Environment.NETHER.toString() + ENV_EXTENSION);;
 	public static final String NORMAL_ENV_FILE = (World.Environment.NORMAL.toString() + ENV_EXTENSION);;
 	public static final String PLUGIN_NAME = HunkleberryGeneral.pdfFile.getName();
-	public static final String LOG_PREFIX = (new StringBuilder("[")).append(PLUGIN_NAME).append("]: ").toString();
+	public static final String LOG_PREFIX = "HbGeneral";
 	public static final String PLUGIN_PATH = (new StringBuilder("plugins/")).append(PLUGIN_NAME).append("/").toString();
 	public static final String BRIEF = "brief";
 	public static final String LONG = "long";
@@ -47,7 +47,9 @@ public class HGStatics {
 	public static final String ALIAS_PROPERTIES = (new StringBuilder(String.valueOf(HGStatics.PLUGIN_PATH))).append("alias.properties").toString();
 	public static final String ALLOW_PROPERTIES = (new StringBuilder(String.valueOf(HGStatics.PLUGIN_PATH))).append("allow.properties").toString();
 	public static final String OPSONLY_PROPERTIES = (new StringBuilder(String.valueOf(HGStatics.PLUGIN_PATH))).append("opsOnly.properties").toString();
-	public static final String PERMISSIONS_PROPERTIES = (new StringBuilder(String.valueOf(HGStatics.PLUGIN_PATH))).append("permissions.properties")
+	public static final String PERMISSIONS_PROPERTIES = (new StringBuilder(String.valueOf(HGStatics.PLUGIN_PATH))).append("permissions.properties").toString();
+	public static final String BOUNCER_PROPERTIES = (new StringBuilder(String.valueOf(HGStatics.PLUGIN_PATH))).append("bouncer.properties").toString();
+	public static final String WORLDLY_PROPERTIES = (new StringBuilder(String.valueOf(HGStatics.PLUGIN_PATH))).append("worldly.properties")
 			.toString();
 	public static final String ALIAS_MESSAGE = ("Use this file to set command aliases. Any alias completely overrides the default command, "
 			+ "which becomes unavailable. Change/add only values, the keys must remain unchanged " + "or they will be overwritten.");
@@ -59,11 +61,21 @@ public class HGStatics {
 			+ "to other users, but cannot take away privledges from ops gained by these settings.");
 	public static final String PERMISSIONS_MESSAGE = ("This file allows editing of the permissions string associated with each command. To reset a "
 			+ "permissions string to the default value delete the entire line for the command, save " + "the file and reload the plugin.");
-	public static final String BOUNCER_PROPERTIES = (new StringBuilder(String.valueOf(HGStatics.PLUGIN_PATH))).append("bouncer.properties").toString();
 	public static final String BOUNCER_MESSAGE = ("Use this file to set bounced players by name, entries will appear as follows: " + HGStatics.NEW_LINE
 			+ "#playerName=999999999 (bounced until system clock = 99999999) " + HGStatics.NEW_LINE + "#playerName= (empty value, bounced forever) "
 			+ HGStatics.NEW_LINE + "#/1.1.1.1=99999999 (ip, and/or hostname, bounced until system clock = 99999999 " 
 			+ HGStatics.NEW_LINE + "#/1.1.1.1= (empty value, bounced by ip/hostname forever)");
+	public static final String WORLDLY_MESSAGE = ("This file contains data pertinent to world level persistables." + HGStatics.NEW_LINE
+			+ "#It is in your best interest to use /worldloadlist to modify world loading entries in this file." + HGStatics.NEW_LINE
+			+ "#Not doing so may result in regenerated and/or switched environment types." + HGStatics.NEW_LINE
+			+ "#");
+	
+	public static String WORLDS_AUTOLOAD_KEY = "AUTOLOAD";
+	public static String ADD = "add";
+	public static String REMOVE = "remove";
+	public static String SAVE = "save";
+	public static String LIST = "list";
+
 
 	public static String COMMAND_HTML_FILE = (new StringBuilder(PLUGIN_PATH)).append("commands.html").toString();
 	public static String COMMAND_BUKKIT_FILE = (new StringBuilder(PLUGIN_PATH)).append("commands.bukkit").toString();

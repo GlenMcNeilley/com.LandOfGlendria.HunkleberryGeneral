@@ -38,6 +38,7 @@ public enum HGCommandData {
 	LOAD_WORLD				("loadworld",		"hg.worlds",			true,	"",	true,	"{worldName}",															"Loads the already created and named world. Requires the existance of world environment type file. See /setworldtype (or its alias)."),
 	CREATE_WORLD			("createworld",		"hg.worlds",			true,	"",	true,	"{worldName} {normal|nether}",											"Create and load a world of the name and environment specified. Creates world environment type file"),
 	DECLARE_WORLD_ENV		("setworldtype",	"hg.worlds",			true,	"",	true,	"{worldName} {normal|nether}",											"Creates a file in the world directory that declares the world environment type."),
+	WORLD_LOAD_LIST			("worldloadlist",	"hg.worlds",			true,	"",	true,	"{add|remove|list|save}",												"Adds, removes, lists or saves entrys in worldly.properties to affect world loading on startup(plugin enable), changes must be saved before. Will only add a world that you currently occupy."),
 	HG_HELP					("hg_help",			"hg.help",				false,	"",	true,	"[command]:default=list commands",										"Display the basic allowed command list or the usage and help text of the command if a specific command is supplied."),
 	LIST_PLUGINS			("listplugins",		"hg.list",				true,	"",	true,	"",																		"List all plugins."),
 	BOUNCE					("bounce",			"hg.bounce",			true,	"",	true,	"{player} [minutes:default=forever] [message]",									"The named player is kicked off the server and not allowed back for the specified number of minutes, or forever(until unbounced)."),

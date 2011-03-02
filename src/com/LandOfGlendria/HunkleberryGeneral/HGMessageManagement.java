@@ -17,11 +17,9 @@ public class HGMessageManagement {
 
 	private static final Logger log = Logger.getLogger("Minecraft");
 	private Plugin plugin;
-	//	private HGInventoryManagement inv;
 
 	public HGMessageManagement(Plugin plugin) {
 		this.plugin = plugin;
-		//		this.inv = inv;
 	}
 
 	public String[] messageSegmenter(String message, int notUSed) {
@@ -193,18 +191,29 @@ public class HGMessageManagement {
 
 	public void sendCommandList(Player player,HGCommandData cmd) {
 		StringBuffer sb = new StringBuffer();
+		boolean allowedToUse = true;
 		for (HGCommandData command : HGCommandData.values()) {
-			sb.append(HGStatics.POSITIVE_COLOR);
-			sb.append("[");
-			sb.append(HGStatics.WARNING_COLOR);
-			sb.append("/");
-			sb.append(command.getCommand());
-			sb.append(HGStatics.POSITIVE_COLOR);
-			sb.append("] ");
+			if (!player.isOp() && command.getOpsOnly().booleanValue()) {
+				if (HGConfig.permissions == null) {
+					allowedToUse = false;
+				} else if (!HGConfig.permissions.has(player, command.getPermissions())) {
+					allowedToUse = false;
+				}
+			}
+			if (allowedToUse) {
+				sb.append(HGStatics.NO_COLOR);
+				sb.append("[");
+				sb.append(HGStatics.WARNING_COLOR);
+				sb.append("/");
+				sb.append(command.getCommand());
+				sb.append(HGStatics.NO_COLOR);
+				sb.append("] ");
+			}
 		}
 		sendPositiveMessage(player,sb.toString());
 		return;
 	}
+	
 	public void sendColorHelp(Player player, HGCommandData command, boolean allowed) {
 		StringBuffer sb = new StringBuffer();
 		sb.append("Usage: ");
@@ -303,9 +312,6 @@ public class HGMessageManagement {
 		}
 		return sb.toString();
 	}
-
-			
-
 
 	public String getWorldList(Player player) {
 		ArrayList<World> worlds = (ArrayList<World>) plugin.getServer().getWorlds();

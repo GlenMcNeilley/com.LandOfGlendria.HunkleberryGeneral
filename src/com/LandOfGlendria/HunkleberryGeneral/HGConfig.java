@@ -3,12 +3,18 @@ package com.LandOfGlendria.HunkleberryGeneral;
 import com.nijiko.permissions.PermissionHandler;
 import com.nijikokun.bukkit.Permissions.Permissions;
 import java.io.*;
+//import java.net.MalformedURLException;
+//import java.net.URL;
+//import java.net.URLClassLoader;
 import java.util.*;
+
+import org.bukkit.command.Command;
 import org.bukkit.plugin.Plugin;
+//import java.sql.*;
 
 public class HGConfig {
 
-	private Plugin plugin;
+	private HunkleberryGeneral plugin;
 	private Properties allowProperties;
 	private Properties aliasProperties;
 	private Properties opsOnlyProperties;
@@ -21,7 +27,7 @@ public class HGConfig {
 	public File permissionsPropertiesFile;
 
 
-	public HGConfig(Plugin plugin, HGMessageManagement msg) {
+	public HGConfig(HunkleberryGeneral plugin, HGMessageManagement msg) {
 		this.plugin = plugin;
 		this.msg = msg;
 		allowProperties = new Properties();
@@ -51,6 +57,43 @@ public class HGConfig {
 			msg.severe((new StringBuilder("Caught ")).append(e.getClass().getName()).append(" in HGConfig().").toString());
 			e.printStackTrace(); 
 		}
+//		File jdbcjar = new File("./lib/sqlitejdbc-v056.jar");   
+//		String lcStr = "org.sqlite.JDBC";   
+//		URL jarfile;
+//		Class loadedClass;
+//		try {
+//			jarfile = new URL("jar", "","file:" + jdbcjar.getAbsolutePath()+"!/");
+//			URLClassLoader cl = URLClassLoader.newInstance(new URL[] {jarfile });   
+//			loadedClass = cl.loadClass(lcStr);
+//		    //Class.forName("org.sqlite.JDBC");
+//
+//		} catch (ClassNotFoundException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		} catch (MalformedURLException e1) {
+//			// TODO Auto-generated catch block
+//			e1.printStackTrace();
+//		} 
+//		
+//		try {
+//			Connection conn =
+//				DriverManager.getConnection("jdbc:sqlite:plugins/HunkleberryGeneral/HGDB.db");
+//			Statement stat = conn.createStatement();
+//
+//
+//		    ResultSet rs;
+//				rs = stat.executeQuery("select * from location;");
+//				// TODO Auto-generated catch block
+//			
+//				while (rs.next()) {
+//					msg.info("name = " + rs.getString("player_name"));
+//					msg.info("job = " + rs.getString("world_name"));
+//				}
+//			} catch (SQLException e) {
+//				e.printStackTrace();
+//		    }
+
+
 	}
 
 	public void setupPermissions() {
@@ -127,6 +170,14 @@ public class HGConfig {
 	private void applyConfigFileChanges() {
 		for (HGCommandData command : HGCommandData.values()) {
 			command.setCommandAlias(aliasProperties.getProperty(command.getDefaultCommand()));
+//------------IFNDEF 440
+/**
+			if (command.getCommandAlias() != null && !command.getCommandAlias().isEmpty()) {
+				//++++++++++++++++++++
+				plugin.setCommandAlias(command.getDefaultCommand(),command.getCommandAlias());
+			}
+*/
+//------------ENDIFNDEF 440
 			command.setServerAllowed(Boolean.valueOf(Boolean.parseBoolean(allowProperties.getProperty(command.getDefaultCommand()))));
 			command.setOpsOnly(Boolean.valueOf(Boolean.parseBoolean(opsOnlyProperties.getProperty(command.getDefaultCommand()))));
 			command.setPermissions(permissionsProperties.getProperty(command.getDefaultCommand()));

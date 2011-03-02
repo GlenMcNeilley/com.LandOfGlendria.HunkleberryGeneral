@@ -7,33 +7,42 @@ import java.util.Iterator;
 import net.minecraft.server.EntityItem;
 import org.bukkit.*;
 import org.bukkit.craftbukkit.CraftWorld;
+import org.bukkit.craftbukkit.entity.CraftHumanEntity;
 import org.bukkit.craftbukkit.entity.CraftItem;
+import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.entity.*;
 import org.bukkit.plugin.Plugin;
 
 public class HGWorldManagement {
 
 	private HGMessageManagement msg;
+	private HGWorldlyThings worldly;
 	private Plugin plugin;
 
-	public HGWorldManagement(Plugin plugin, HGMessageManagement msg) {
+	public HGWorldManagement(Plugin plugin, HGMessageManagement msg, HGWorldlyThings worldly) {
 		this.msg = msg;
 		this.plugin = plugin;
+		this.worldly = worldly;
 	}
 
+	@SuppressWarnings("deprecation")
 	public String removeNonPlayerEntities(Player player) {
 		ArrayList<LivingEntity> entityList = (ArrayList<LivingEntity>) player.getWorld().getLivingEntities();
 		int killcount = 0;
 		Iterator<LivingEntity> iterator = entityList.iterator();
 		while (iterator.hasNext()) {
-			LivingEntity entity = (LivingEntity) iterator.next();
+			LivingEntity entity = iterator.next();
 		   	if (entity instanceof Player) {
 		   		continue;
 		   	}
-		   	entity.setHealth(0);
+//		   	if (entity.isPlayer()) {
+//		   		continue;
+//		   	}
+		   	entity.remove();
 		   	killcount++;
 		}
 		msg.sendPositiveMessage(player, ("Removed " + killcount + " living entities."));
+		msg.info("Removed " + killcount + " living entities.");
 		return null;
 	}
 
@@ -183,5 +192,83 @@ public class HGWorldManagement {
 
 		msg.sendPositiveMessage(player, Integer.toString(x1+y1+z1));
 		return null;
+	}
+
+	public String worldLoadList(Player player,String arg){
+		if (arg.equalsIgnoreCase(HGStatics.ADD)) {
+			if (worldly.addAutoLoadWorld(player.getWorld().getName())) {
+				msg.sendPositiveMessage(player, player.getWorld().getName() +" added to autoload list.");
+			} else {
+				return ("Unable to add " + player.getWorld().getName() + " to autoload list.  Entry may already exist.");
+			} 
+		} else if (arg.equalsIgnoreCase(HGStatics.REMOVE)) {
+			if (worldly.deleteAutoLoadWorld(player.getWorld().getName())) {
+				msg.sendPositiveMessage(player, player.getWorld().getName() +" deleted from autoload list.");
+			} else {
+				return ("Unable to delete " + player.getWorld().getName() + " from autoload list.  Entry may not exist.");
+			}
+		} else if (arg.equalsIgnoreCase(HGStatics.LIST)) {
+			if (worldly.getWorldAutoLoadArray().length > 0) {
+				StringBuffer sb = new StringBuffer("Worlds in autoload list: ");
+				for (Object world : worldly.getWorldAutoLoadArray()) {
+					sb.append(HGStatics.NO_COLOR);
+					sb.append("[");
+					sb.append(HGStatics.WARNING_COLOR);
+					sb.append((String)world);
+					sb.append(HGStatics.NO_COLOR);
+					sb.append("] ");
+				}
+				msg.sendSegmented(player, sb.toString());
+			} else {
+				return ("World autolist is empty.");
+			}
+		} else if (arg.equalsIgnoreCase(HGStatics.SAVE)) {
+			try {
+				worldly.saveConfigFileProperties();
+				msg.sendPositiveMessage(player, "World autoload list saved.");
+			} catch (IOException e) {
+				e.printStackTrace();
+				return ("Error saving properties files.");
+			}
+		} else {
+			return msg.formatInvalidArgs(arg, "Invalid argument");
+		}
+		return null;
+	}
+	
+	public String loadWorldArray(final Object[] worlds) {
+		for (Object o : worlds) {
+			String name = (String)o;
+			if (plugin.getServer().getWorld(name) == null) {
+				World.Environment envEnum =  World.Environment.NORMAL;
+				File worldFile = new File(name + "/" + HGStatics.WORLD_DATA_FILE);
+				File netherFile = new File(name + "/" + HGStatics.NETHER_ENV_FILE);
+				File normalFile = new File(name + "/" + HGStatics.NORMAL_ENV_FILE);
+				if (!worldFile.exists()) {
+					msg.info("World " + name + " does not exist, could not be autoloaded.");
+					continue;
+				}
+				
+				if (netherFile.exists() && normalFile.exists()) {
+					continue;
+				} else if (netherFile.exists()) {
+					envEnum = World.Environment.NETHER;
+				} else if (normalFile.exists()) {
+					envEnum = World.Environment.NORMAL;
+				} else {
+					msg.info("World " + name + " environment file does not exist, could not be autoloaded.");
+					continue;
+				}
+				msg.info("Autoloading world " + name + ". Please wait for completion message.");
+				plugin.getServer().createWorld(name, envEnum);
+				msg.info("World " + name + " is loaded and ready for use.");
+
+				//loadWorldsInThread(name,envEnum);
+			} else { 
+				msg.info("World " + name + " is already loaded.");
+			}
+		}
+		return null;
+
 	}
 }

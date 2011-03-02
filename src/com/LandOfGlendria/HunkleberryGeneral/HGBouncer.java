@@ -93,7 +93,7 @@ public class HGBouncer {
 	
 	public void manageBouncerPropertyFiles() {
 		try {
-			cfg.getPropertiesFromFile(bouncerPropertiesFile, bouncerProperties,HGStatics.BOUNCER_MESSAGE);
+			cfg.getPropertiesFromFile(bouncerPropertiesFile, bouncerProperties);
 			saveConfigFileProperties();
 		} catch (IOException e) {
 			msg.severe("Error reading/writing bouncer properties files.");
@@ -102,7 +102,12 @@ public class HGBouncer {
 	}	
 
 	public void saveConfigFileProperties() throws IOException{
-		cfg.saveConfigFileProperties(bouncerPropertiesFile, bouncerProperties,HGStatics.BOUNCER_MESSAGE); 
+		cfg.saveConfigFileProperties(bouncerPropertiesFile, bouncerProperties,
+				"Use this file to set bounced players by name, entries will appear as follows: " + HGStatics.NEW_LINE
+				+ "#playerName=999999999 (bounced until system clock = 99999999) " + HGStatics.NEW_LINE
+				+ "#playerName= (empty value, bounced forever) " + HGStatics.NEW_LINE
+				+ "#/1.1.1.1=99999999 (ip, and/or hostname, bounced until system clock = 99999999 " + HGStatics.NEW_LINE
+				+ "#/1.1.1.1= (empty value, bounced by ip/hostname forever)"); 
 	}
 	
 	public ArrayList<String> getFormattedArray() { //syncronize because of this?
