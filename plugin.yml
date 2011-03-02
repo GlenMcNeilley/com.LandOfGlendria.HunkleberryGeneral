@@ -63,6 +63,12 @@ commands:
  loc:
   description: 
   usage: 
+ sights:
+  description: 
+  usage: 
+ see:
+  description: 
+  usage: 
  leap:
   description: 
   usage: 

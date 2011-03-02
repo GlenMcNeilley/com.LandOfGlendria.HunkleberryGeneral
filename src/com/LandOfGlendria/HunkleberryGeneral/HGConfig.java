@@ -16,15 +16,17 @@ public class HGConfig {
 	private Properties permissionsProperties;
 	public static PermissionHandler permissions;
 	public HGMessageManagement msg;
+	public HGCommandDAO commandDAO;
 	public File aliasPropertiesFile;
 	public File allowPropertiesFile;
 	public File opsOnlyPropertiesFile;
 	public File permissionsPropertiesFile;
 
 
-	public HGConfig(HunkleberryGeneral plugin, HGMessageManagement msg) {
+	public HGConfig(HunkleberryGeneral plugin, HGMessageManagement msg, HGCommandDAO commandDAO) {
 		this.plugin = plugin;
 		this.msg = msg;
+		this.commandDAO = commandDAO;
 		allowProperties = new Properties();
 		aliasProperties = new Properties();
 		opsOnlyProperties = new Properties();
@@ -111,7 +113,7 @@ public class HGConfig {
 			getPropertiesFromFile(opsOnlyPropertiesFile, opsOnlyProperties,HGStatics.OPSONLY_MESSAGE);
 			getPropertiesFromFile(permissionsPropertiesFile, permissionsProperties,HGStatics.PERMISSIONS_MESSAGE);
 			applyConfigFileChanges();
-			HGCommandData.reloadLookup();
+			HGCommandDAO.reloadLookup();
 			saveConfigFileProperties();
 		} catch (IOException e) {
 			msg.severe("Error reading/writing properties files.");
@@ -131,7 +133,7 @@ public class HGConfig {
 			getPropertiesFromFile(opsOnlyPropertiesFile, opsOnlyProperties,HGStatics.OPSONLY_MESSAGE);
 			getPropertiesFromFile(permissionsPropertiesFile, permissionsProperties,HGStatics.PERMISSIONS_MESSAGE);
 			applyConfigFileChanges();
-			HGCommandData.reloadLookup();
+			HGCommandDAO.reloadLookup();
 			setCurrentConfigFileProperties();
 			saveConfigFileProperties();
 		} catch (IOException e) {
@@ -141,11 +143,11 @@ public class HGConfig {
 	}
 
 	public void setCurrentConfigFileProperties() {
-		for (HGCommandData command : HGCommandData.values()) {
-			aliasProperties.setProperty(command.getDefaultCommand(), command.getCommandAlias());
-			allowProperties.setProperty(command.getDefaultCommand(), Boolean.toString(command.getServerAllowed().booleanValue()));
-			opsOnlyProperties.setProperty(command.getDefaultCommand(), Boolean.toString(command.getOpsOnly().booleanValue()));
-			permissionsProperties.setProperty(command.getDefaultCommand(), command.getPermissions());
+		for (HGCommand command : HGCommand.values()) {
+			aliasProperties.setProperty(commandDAO.getDefaultCommand(command), commandDAO.getCommandAlias(command));
+			allowProperties.setProperty(commandDAO.getDefaultCommand(command), Boolean.toString(commandDAO.getServerAllowed(command).booleanValue()));
+			opsOnlyProperties.setProperty(commandDAO.getDefaultCommand(command), Boolean.toString(commandDAO.getOpsOnly(command).booleanValue()));
+			permissionsProperties.setProperty(commandDAO.getDefaultCommand(command), commandDAO.getPermissions(command));
 		}
 	}
 
@@ -163,8 +165,8 @@ public class HGConfig {
 	}
 
 	private void applyConfigFileChanges() {
-		for (HGCommandData command : HGCommandData.values()) {
-			command.setCommandAlias(aliasProperties.getProperty(command.getDefaultCommand()));
+		for (HGCommand command : HGCommand.values()) {
+			commandDAO.setCommandAlias(command,aliasProperties.getProperty(commandDAO.getDefaultCommand(command)));
 //------------IFNDEF 440
 /**
 			if (command.getCommandAlias() != null && !command.getCommandAlias().isEmpty()) {
@@ -173,9 +175,9 @@ public class HGConfig {
 			}
 */
 //------------ENDIFNDEF 440
-			command.setServerAllowed(Boolean.valueOf(Boolean.parseBoolean(allowProperties.getProperty(command.getDefaultCommand()))));
-			command.setOpsOnly(Boolean.valueOf(Boolean.parseBoolean(opsOnlyProperties.getProperty(command.getDefaultCommand()))));
-			command.setPermissions(permissionsProperties.getProperty(command.getDefaultCommand()));
+			commandDAO.setServerAllowed(command,Boolean.valueOf(Boolean.parseBoolean(allowProperties.getProperty(commandDAO.getDefaultCommand(command)))));
+			commandDAO.setOpsOnly(command,Boolean.valueOf(Boolean.parseBoolean(opsOnlyProperties.getProperty(commandDAO.getDefaultCommand(command)))));
+			commandDAO.setPermissions(command,permissionsProperties.getProperty(commandDAO.getDefaultCommand(command)));
 		}
 	}
 
@@ -204,15 +206,15 @@ public class HGConfig {
 		sb.append("<body font-type=sans font-size:small>");
 		sb.append("<table border=0>");
 		sb.append(HGStatics.NEW_LINE);
-		for (HGCommandData command : HGCommandData.values()) {
+		for (HGCommand command : HGCommand.values()) {
 			sb.append("<tr><td colspan=2 bgcolor=ffffff>&nbsp;</td></tr>");
 			sb.append("<tr><td bgcolor=ffffff>/");
-			sb.append(command.getCommand());
+			sb.append(commandDAO.getCommand(command));
 			sb.append("</td><td bgcolor=f0f0f0>");
-			sb.append(command.getCommandArgs());
+			sb.append(commandDAO.getCommandArgs(command));
 			sb.append("</td></tr><tr><td align=center>");
 			sb.append("</td><td valign=top align=left bgcolor=c0c0c0>");
-			sb.append(command.getCommandUsage());
+			sb.append(commandDAO.getCommandUsage(command));
 			sb.append("</td></tr>");
 			sb.append(HGStatics.NEW_LINE);
 		}
@@ -225,15 +227,15 @@ public class HGConfig {
 
 	public String writeCommandsToBukkit() {
 		StringBuffer sb = new StringBuffer();
-		for (HGCommandData command : HGCommandData.values()) {
+		for (HGCommand command : HGCommand.values()) {
 			sb.append("[INDENT=1][FONT=helvetica][SIZE=3][COLOR=rgb(51, 102, 255)]/");
-			sb.append(command.getCommand());
+			sb.append(commandDAO.getCommand(command));
 			sb.append("[/COLOR][/SIZE][/FONT][SIZE=3]    [FONT=helvetica][COLOR=rgb(51, 153, 102)]");
-			sb.append(command.getCommandArgs());
+			sb.append(commandDAO.getCommandArgs(command));
 			sb.append("[/COLOR][/FONT][/SIZE][/INDENT]");
 			sb.append(HGStatics.NEW_LINE);		
 			sb.append("[INDENT=2][FONT=helvetica][SIZE=3][COLOR=rgb(0, 0, 0)]");
-			sb.append(command.getCommandUsage());
+			sb.append(commandDAO.getCommandUsage(command));
 			sb.append("[/COLOR][/SIZE][/FONT][/INDENT]");
 			sb.append(HGStatics.NEW_LINE);		
 			sb.append("[INDENT=1][/INDENT]");
@@ -267,9 +269,9 @@ public class HGConfig {
 		sb.append("commands:");
 		sb.append(HGStatics.NEW_LINE);
 		sb.append(HGStatics.NEW_LINE);				
-		for (HGCommandData command : HGCommandData.values()) {
+		for (HGCommand command : HGCommand.values()) {
 			sb.append(" ");				
-			sb.append(command.getDefaultCommand());
+			sb.append(commandDAO.getDefaultCommand(command));
 			sb.append(":");				
 			sb.append(HGStatics.NEW_LINE);
 			sb.append("  description: ");				

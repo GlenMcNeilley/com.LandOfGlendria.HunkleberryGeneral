@@ -1,7 +1,7 @@
 package com.LandOfGlendria.HunkleberryGeneral;
 
 //import java.util.Arrays;
-import java.sql.*;
+import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 
 import org.bukkit.command.Command;
@@ -21,15 +21,12 @@ public class HunkleberryGeneral extends JavaPlugin {
 	public static HGConfig config;
 	public static HGBouncer bouncer;
 	private static HGMessageManagement msg;
+	private static HGCommandDAO commandDAO;
 	private static HGCommandHandler commandHandler;
 
 	public HunkleberryGeneral() {
 	}
 
-//------------IFNDEF 440
-//	public PluginCommand getCommand(String name) {
-//		return this.getCommand(name);
-//	}
 /**	
 	public void setCommandAlias(String name,String newValue) {
 		Command registeringCommand = getCommand(name);
@@ -39,58 +36,28 @@ public class HunkleberryGeneral extends JavaPlugin {
 		}
 	}
 */	
-//------------IFNDEF 440
 
 	public void onEnable() {
+		commandDAO = new HGCommandDAO();
 		pdfFile = getDescription();
-		msg = new HGMessageManagement(this);
-		config = new HGConfig(this, msg);
+		msg = new HGMessageManagement(this,commandDAO);
+		config = new HGConfig(this, msg, commandDAO);
 		bouncer = new HGBouncer(this, msg, config);
 		listener = new HGPlayerListener(this, msg, bouncer);
-		commandHandler = new HGCommandHandler(this, msg, bouncer);
+		commandHandler = new HGCommandHandler(this, msg, bouncer,commandDAO);
 		PluginManager pm = getServer().getPluginManager();
-		
-		
-		
-		
-		
-		
-
-
-
-		try {
-			Class.forName("org.sqlite.JDBC");
-			Connection conn =
-				DriverManager.getConnection("jdbc:sqlite:location.sqlite");
-			Statement stat = conn.createStatement();
-			ResultSet rs = stat.executeQuery("select * from people;");
-			while (rs.next()) {
-				System.out.println("name = " + rs.getString("name"));
-				System.out.println("job = " + rs.getString("occupation"));
-			}
-			rs.close();
-			conn.close();
-
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-
-		
-		
-//------------IFDEF 440
-//		pm.registerEvent(org.bukkit.event.Event.Type.PLAYER_COMMAND, listener, org.bukkit.event.Event.Priority.Normal, this);
-//------------ENDIFDEF 440
 		
 		pm.registerEvent(org.bukkit.event.Event.Type.PLAYER_JOIN, listener, org.bukkit.event.Event.Priority.Normal, this);
 		pm.registerEvent(org.bukkit.event.Event.Type.PLAYER_LOGIN, listener, org.bukkit.event.Event.Priority.Normal, this);
 		pm.registerEvent(org.bukkit.event.Event.Type.PLAYER_RESPAWN, listener, org.bukkit.event.Event.Priority.Normal, this);
 
-//------------IFNDEF 440
+//		try {
+//		String test = msg.encodeString("Now is the time for all,,,...///===" + HGStatics.ERROR_COLOR + "   ");
+//				msg.info(test);
+//		msg.info(msg.decodeString(test));
+//		} catch (UnsupportedEncodingException e){
+//			e.printStackTrace();
+//		}
 		
 /**			
  			for (HGCommandData command : HGCommandData.values()) {
@@ -110,22 +77,18 @@ public class HunkleberryGeneral extends JavaPlugin {
 				}
 			}
 */
-//------------ENDIFNDEF 440
 
-			
-			
 		commandHandler.autoLoadWorlds();
 		msg.info((new StringBuilder(String.valueOf(pdfFile.getName()))).append(" version ").append(pdfFile.getVersion()).append(" is enabled").toString());
 	}
 
 	public void onDisable() {
-		
 	}
 	
     public boolean onCommand(CommandSender sender, Command incomingCommand, String commandLabel, String[] args) {
     	if (!(sender instanceof Player)) return false;
     	Player player = (Player)sender;
-    	msg.info("recieved command: " + incomingCommand.getName());
+    	//msg.info("recieved command: " + incomingCommand.getName());
 		if (incomingCommand.getName().equalsIgnoreCase("hg_test")) {
 			msg.sendPositiveMessage(player,
 					(new StringBuilder(String.valueOf(HunkleberryGeneral.pdfFile.getName()))).append(" version ")
@@ -134,18 +97,18 @@ public class HunkleberryGeneral extends JavaPlugin {
 		}
 		
 		String base = incomingCommand.getName();
-		HGCommandData command = HGCommandData.getCommandDataByName(base);
+		HGCommand command = HGCommandDAO.getCommandDataByName(base);
 		if (command == null) {
 			return false;
 		}
-		if (!command.getServerAllowed().booleanValue()) {
+		if (!commandDAO.getServerAllowed(command).booleanValue()) {
 			return false;
 		}
-		if (!player.isOp() && command.getOpsOnly().booleanValue()) {
+		if (!player.isOp() && commandDAO.getOpsOnly(command).booleanValue()) {
 			if (HGConfig.permissions == null) {
 				return false;
 			}
-			if (!HGConfig.permissions.has(player, command.getPermissions())) {
+			if (!HGConfig.permissions.has(player, commandDAO.getPermissions(command))) {
 				return false;
 			}
 		}
@@ -159,8 +122,8 @@ public class HunkleberryGeneral extends JavaPlugin {
 		
 		String error;
 		if ((error = commandHandler.handleCommand(player, command, commandArray)) != null) {
-			String helpCommand = HGCommandData.HG_HELP.getCommand();
-			msg.sendColorErrorUsage(player, error, command.getCommand(), command.getCommandArgs(), helpCommand);
+			String helpCommand = HGCommandDAO.getCommand(HGCommand.HG_HELP);
+			msg.sendColorErrorUsage(player, error, HGCommandDAO.getCommand(command), commandDAO.getCommandArgs(command), helpCommand);
 		}
 		return true;
 	}

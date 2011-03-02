@@ -68,7 +68,7 @@ public class HGPlayerListener extends PlayerListener {
 			}
 			else {
 				if (loggingInIpString != null) {
-					msg.info("looking for :"+loggingInIpString+":");
+					//msg.info("looking for :"+loggingInIpString+":");
 					if (bouncer.getBounced(loggingInIpString)) {
 						player.setHealth(0);
 					}
@@ -95,7 +95,7 @@ public class HGPlayerListener extends PlayerListener {
 			}
 			else {
 				if (loggingInIpString != null) {
-					msg.info("looking for :"+loggingInIpString+":");
+					//msg.info("looking for :"+loggingInIpString+":");
 					if (bouncer.getBounced(loggingInIpString)) {
 						player.kickPlayer(loggingInName);
 					}

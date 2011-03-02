@@ -176,9 +176,8 @@ public class HGPlayerManagement {
 				}
 				i += 3;
 				leapLocation = new Location(sender.getWorld(), leapX.intValue(), leapY.intValue(), leapZ.intValue());
-			} else {
-				return msg.formatInvalidArgs(commandArray[i], "Invalid argument, not a player, world, or complete coordinate triplet");
 			}
+			return msg.formatInvalidArgs(commandArray[i], "Invalid argument, not a player, world, or complete coordinate triplet");
 		}
 
 		if (leapWorld == null) {
@@ -314,7 +313,7 @@ public class HGPlayerManagement {
 		bouncer.manageBouncerPropertyFiles();
 	}
 
-	public String bounce(Player player, HGCommandData command, String[] commandArray) {
+	public String bounce(Player player, HGCommand command, String[] commandArray) {
 		// validate the duration
 		int argumentCount = 2;
 		String bounceMessage = new String("");
@@ -344,7 +343,7 @@ public class HGPlayerManagement {
 		}
 
 		// do what to whom
-		if (command == HGCommandData.FORCE_BOUNCE) {
+		if (command == HGCommand.FORCE_BOUNCE) {
 			try {
 				bouncer.setBounced(commandArray[1], durationString);
 				msg.sendPositiveMessage(player, "Bounced " + commandArray[1] + friendlyDurationString);
@@ -354,7 +353,7 @@ public class HGPlayerManagement {
 			}
 		}
 
-		if (command == HGCommandData.BOUNCE) {
+		if (command == HGCommand.BOUNCE) {
 			// validate player
 			Player bouncee = plugin.getServer().getPlayer(commandArray[1]);
 			if (bouncee != null) {
@@ -371,7 +370,7 @@ public class HGPlayerManagement {
 			}
 		}
 
-		if (command == HGCommandData.BOUNCE_IP) {
+		if (command == HGCommand.BOUNCE_IP) {
 			// validate ip
 			Player bouncee = plugin.getServer().getPlayer(commandArray[1]);
 			if (bouncee != null) {
@@ -402,7 +401,7 @@ public class HGPlayerManagement {
 			}
 		}
 
-		if (command == HGCommandData.UNBOUNCE) {
+		if (command == HGCommand.UNBOUNCE) {
 			try {
 				if (bouncer.setUnBounced(commandArray[1])) {
 					msg.sendPositiveMessage(player, "Unbounced " + commandArray[1]);
@@ -418,5 +417,88 @@ public class HGPlayerManagement {
 		
 		
 		return null;
+	}
+	
+	public String addLocation(Player player, String locName, boolean anyone) {
+		String owner;
+		if (anyone) {
+			owner = HGStatics.ANYONE;
+		} else {
+			owner = player.getName();
+		}
+
+		String worldName = player.getWorld().getName();
+		HGLocationData location = new HGLocationData(owner, locName, worldName, 
+				player.getLocation().getBlockX(),
+				player.getLocation().getBlockY(),
+				player.getLocation().getBlockZ(),
+				player.getLocation().getPitch(),
+				player.getLocation().getYaw(),
+				System.currentTimeMillis());
+		
+		String locationKey = owner + "." + locName;
+		HGLocationData.put(locationKey, location);
+		msg.sendPositiveMessage(player, "Added sight: " + location.locationName + " in world " + location.worldName + ".");
+		return null;
+	}
+	
+	public String removeLocation(Player player, String locName, boolean anyone) {
+		String owner;
+		if (anyone) {
+			owner = HGStatics.ANYONE;
+		} else {
+			owner = player.getName();
+		}
+
+		String locationKey = owner + "." + locName;
+		HGLocationData.remove(locationKey);
+		return null;
+	}
+	
+	public String sendLocationList(Player player, boolean anyone) {
+		String owner;
+		if (anyone) {
+			owner = HGStatics.ANYONE;
+		} else {
+			owner = player.getName();
+		}
+		HashSet<HGLocationData> locations = HGLocationData.getLocationsByOwnerName(owner);
+		if (locations.size() > 0) {
+			msg.sendSegmented(player, msg.getLocationList(locations));
+			return null;
+		} else {
+			return ("You have no saved locations.");
+		}
+	}
+	
+	public String goSight(Player player, String name, boolean anyone) {
+		String owner;
+		if (anyone) {
+			owner = HGStatics.ANYONE;
+		} else {
+			owner = player.getName();
+		}
+		String locationKey = owner + "." + name;
+
+		HGLocationData location = HGLocationData.getLocationDataByName(locationKey);
+		if (location != null) {
+			if (plugin.getServer().getWorld(location.worldName) != null) {
+				Location goingTo = new Location(
+						plugin.getServer().getWorld(location.worldName), 
+						location.x,
+						location.y,
+						location.z,
+						location.yaw,
+						location.pitch);
+			
+				player.teleportTo(goingTo);
+				msg.sendPositiveMessage(player, "Going to see " + location.worldName + "." + location.locationName + ".");
+				return null;
+			} else {
+				return ("The world for that location has not been loaded.");
+			}
+		} else {
+			return msg.formatInvalidArgs(name, "You have no saved location by that name");
+		}
 	}
 }

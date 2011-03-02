@@ -1,8 +1,13 @@
 package com.LandOfGlendria.HunkleberryGeneral;
 
 import java.text.DateFormat;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.net.URLDecoder;
+
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.logging.Logger;
 
@@ -17,9 +22,19 @@ public class HGMessageManagement {
 
 	private static final Logger log = Logger.getLogger("Minecraft");
 	private Plugin plugin;
+	private HGCommandDAO commandDAO;
 
-	public HGMessageManagement(Plugin plugin) {
+	public HGMessageManagement(Plugin plugin,HGCommandDAO commandDAO) {
 		this.plugin = plugin;
+		this.commandDAO = commandDAO;
+	}
+	
+	public String encodeString(String unsafe) throws UnsupportedEncodingException {
+		return URLEncoder.encode(unsafe,HGStatics.UTF8);
+	}
+	
+	public String decodeString(String unsafe) throws UnsupportedEncodingException {
+		return URLDecoder.decode(unsafe,HGStatics.UTF8);
 	}
 
 	public String[] messageSegmenter(String message, int notUSed) {
@@ -189,14 +204,14 @@ public class HGMessageManagement {
 		sendSegmented(player, sb.toString());
 	}
 
-	public void sendCommandList(Player player,HGCommandData cmd) {
+	public void sendCommandList(Player player) {
 		StringBuffer sb = new StringBuffer();
 		boolean allowedToUse = true;
-		for (HGCommandData command : HGCommandData.values()) {
-			if (!player.isOp() && command.getOpsOnly().booleanValue()) {
+		for (HGCommand command : HGCommand.values()) {
+			if (!player.isOp() && commandDAO.getOpsOnly(command).booleanValue()) {
 				if (HGConfig.permissions == null) {
 					allowedToUse = false;
-				} else if (!HGConfig.permissions.has(player, command.getPermissions())) {
+				} else if (!HGConfig.permissions.has(player, commandDAO.getPermissions(command))) {
 					allowedToUse = false;
 				}
 			}
@@ -205,7 +220,7 @@ public class HGMessageManagement {
 				sb.append("[");
 				sb.append(HGStatics.WARNING_COLOR);
 				sb.append("/");
-				sb.append(command.getCommand());
+				sb.append(HGCommandDAO.getCommand(command));
 				sb.append(HGStatics.NO_COLOR);
 				sb.append("] ");
 			}
@@ -214,28 +229,28 @@ public class HGMessageManagement {
 		return;
 	}
 	
-	public void sendColorHelp(Player player, HGCommandData command, boolean allowed) {
+	public void sendColorHelp(Player player, HGCommand command, boolean allowed) {
 		StringBuffer sb = new StringBuffer();
 		sb.append("Usage: ");
 		sb.append(HGStatics.COMMAND_COLOR);
 		sb.append("/");
-		sb.append(command.getCommand());
+		sb.append(commandDAO.getCommand(command));
 		sb.append(" ");
 		sb.append(HGStatics.ARGUMENTS_COLOR);
-		sb.append(command.getCommandArgs());
+		sb.append(commandDAO.getCommandArgs(command));
 		sb.append(" ");
 		sb.append(HGStatics.NO_COLOR);
-		sb.append(command.getCommandUsage());
+		sb.append(commandDAO.getCommandUsage(command));
 		sb.append(" Settings: ");
 		sb.append(HGStatics.WARNING_COLOR);
 		sb.append("[opsOnly=");
-		sb.append(command.getOpsOnly().toString());
+		sb.append(commandDAO.getOpsOnly(command).toString());
 		sb.append("] [serverAllowed=");
-		sb.append(command.getServerAllowed().toString());
+		sb.append(commandDAO.getServerAllowed(command).toString());
 		sb.append("] [permissions=");
-		sb.append(command.getPermissions());
+		sb.append(commandDAO.getPermissions(command));
 		sb.append("] ");
-		if (command.getServerAllowed().booleanValue()) {
+		if (commandDAO.getServerAllowed(command).booleanValue()) {
 			if (allowed) {
 				sb.append(HGStatics.POSITIVE_COLOR);
 				sb.append("Usable.");
@@ -341,6 +356,20 @@ public class HGMessageManagement {
 				sb.append(HGStatics.NO_COLOR);
 				sb.append("] ");
 			}
+		}
+		return sb.toString();
+	}
+
+	public String getLocationList(HashSet<HGLocationData> locations) {
+		StringBuilder sb = new StringBuilder();
+		for (HGLocationData location : locations) {
+			sb.append("[");
+			sb.append(HGStatics.WARNING_COLOR);
+			sb.append(location.locationName);
+			sb.append("(");
+			sb.append(location.worldName);
+			sb.append(HGStatics.NO_COLOR);
+			sb.append(")] ");
 		}
 		return sb.toString();
 	}

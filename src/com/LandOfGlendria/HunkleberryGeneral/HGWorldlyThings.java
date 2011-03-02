@@ -11,6 +11,13 @@ import org.bukkit.plugin.Plugin;
 public class HGWorldlyThings
 {
 
+    private Properties worldlyProperties;
+    public HGMessageManagement msg;
+    public HGConfig cfg;
+    public File worldlyPropertiesFile;
+    public static HashSet<String> worldLoadSet = new HashSet<String>();
+    public static String worldLoadArray[];
+
     public HGWorldlyThings(Plugin plugin, HGMessageManagement msg, HGConfig cfg)
     {
         this.msg = msg;
@@ -37,6 +44,28 @@ public class HGWorldlyThings
             worldLoadSet.addAll(Arrays.asList(worldLoadArray));
             worldLoadSet.remove("");
         }
+    }
+    private void populateWorldLocationList()
+    {
+//        Enumeration e = worldlyProperties.propertyNames();
+//
+//        while (e.hasMoreElements()) {
+//          String key = (String) e.nextElement();
+//          if (key.startsWith("loc.")) {
+//        	  
+//          }
+//          String value = worldlyProperties.getProperty(key);
+//          
+//          
+//        }
+//
+//        if(worldlyProperties.containsKey(HGStatics.WORLDS_AUTOLOAD_KEY))
+//        {
+//            String worldsToLoad = worldlyProperties.getProperty(HGStatics.WORLDS_AUTOLOAD_KEY);
+//            worldLoadArray = worldsToLoad.split("/");
+//            worldLoadSet.addAll(Arrays.asList(worldLoadArray));
+//            worldLoadSet.remove("");
+//        }
     }
 
     private void setWorldAutoLoadList()
@@ -111,6 +140,7 @@ public class HGWorldlyThings
         {
             cfg.getPropertiesFromFile(worldlyPropertiesFile, worldlyProperties, HGStatics.WORLDLY_MESSAGE);
             populateWorldAutoLoadList();
+            populateWorldLocationList();
             saveConfigFileProperties();
         }
         catch(IOException e)
@@ -127,11 +157,6 @@ public class HGWorldlyThings
         cfg.saveConfigFileProperties(worldlyPropertiesFile, worldlyProperties, HGStatics.WORLDLY_MESSAGE);
     }
 
-    private Properties worldlyProperties;
-    public HGMessageManagement msg;
-    public HGConfig cfg;
-    public File worldlyPropertiesFile;
-    public static HashSet<String> worldLoadSet = new HashSet<String>();
-    public static String worldLoadArray[];
+    
 
 }

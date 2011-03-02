@@ -16,11 +16,13 @@ public class HGWorldManagement {
 	private HGMessageManagement msg;
 	private HGWorldlyThings worldly;
 	private Plugin plugin;
+	private HGCommandDAO commandDAO;
 
-	public HGWorldManagement(Plugin plugin, HGMessageManagement msg, HGWorldlyThings worldly) {
+	public HGWorldManagement(Plugin plugin, HGMessageManagement msg, HGWorldlyThings worldly, HGCommandDAO commandDAO) {
 		this.msg = msg;
 		this.plugin = plugin;
 		this.worldly = worldly;
+		this.commandDAO = commandDAO;
 	}
 
 	public String removeNonPlayerEntities(Player player) {
@@ -29,11 +31,11 @@ public class HGWorldManagement {
 		Iterator<LivingEntity> iterator = entityList.iterator();
 		while (iterator.hasNext()) {
 			LivingEntity entity = iterator.next();
-		   	if (entity instanceof Player) {
-		   		continue;
-		   	}
-		   	entity.remove();
-		   	killcount++;
+			if (entity instanceof Player) {
+				continue;
+			}
+			entity.remove();
+			killcount++;
 		}
 		msg.sendPositiveMessage(player, ("Removed " + killcount + " living entities."));
 		msg.info("Removed " + killcount + " living entities.");
@@ -63,21 +65,21 @@ public class HGWorldManagement {
 		msg.sendSegmented(player, msg.getWorldList(player));
 		return null;
 	}
-	
-	public synchronized String worldLoader(Player player, HGCommandData command, String name, String env) {
-		if (command == HGCommandData.LOAD_WORLD) {
-			return loadWorld(player,name);
-		} else if (command == HGCommandData.CREATE_WORLD) {
-			return createWorld(player,name,env);
-		} else if (command == HGCommandData.DECLARE_WORLD_ENV) {
-			return createWorldEnvFile(player,name,env);
+
+	public synchronized String worldLoader(Player player, HGCommand command, String name, String env) {
+		if (command == HGCommand.LOAD_WORLD) {
+			return loadWorld(player, name);
+		} else if (command == HGCommand.CREATE_WORLD) {
+			return createWorld(player, name, env);
+		} else if (command == HGCommand.DECLARE_WORLD_ENV) {
+			return createWorldEnvFile(player, name, env);
 		} else {
-			return ("Internal error. Invalid command to worldLoader. Command = " + command.getCommand());
+			return ("Internal error. Invalid command to worldLoader. Command = " + commandDAO.getCommand(command));
 		}
 	}
 
 	private String loadWorld(Player player, String name) {
-		World.Environment envEnum =  World.Environment.NORMAL;
+		World.Environment envEnum = World.Environment.NORMAL;
 		File worldFile = new File(name + "/" + HGStatics.WORLD_DATA_FILE);
 		File netherFile = new File(name + "/" + HGStatics.NETHER_ENV_FILE);
 		File normalFile = new File(name + "/" + HGStatics.NORMAL_ENV_FILE);
@@ -85,19 +87,21 @@ public class HGWorldManagement {
 			msg.warn(player.getName() + " attempted to load a world that doesn't exist [" + name + "].");
 			return (name + "does not exist.");
 		}
-		
+
 		if (netherFile.exists() && normalFile.exists()) {
-			msg.warn(player.getName() + " attempted to load world " + name + " but it has both NORMAL and NETHER environment files.  Please delete the appropriate file.");
+			msg.warn(player.getName() + " attempted to load world " + name
+					+ " but it has both NORMAL and NETHER environment files.  Please delete the appropriate file.");
 			return ("Unable to load environment file for " + name + ".  See the server console for more information.");
 		} else if (netherFile.exists()) {
 			envEnum = World.Environment.NETHER;
 		} else if (normalFile.exists()) {
 			envEnum = World.Environment.NORMAL;
 		} else {
-			msg.warn(player.getName() + " attempted to load world " + name + " but it does not have a NORMAL or NETHER environment file.  Use /setenvtype to correct this issue.");
-			return ("Unable to load environment file for " + name + ".  See the server console for more information.");		
+			msg.warn(player.getName() + " attempted to load world " + name
+					+ " but it does not have a NORMAL or NETHER environment file.  Use /setenvtype to correct this issue.");
+			return ("Unable to load environment file for " + name + ".  See the server console for more information.");
 		}
-		
+
 		msg.sendPositiveMessage(player, ("Loading ") + envEnum.toString() + " world " + name + ". Please wait for completion message.");
 		World created = plugin.getServer().createWorld(name, envEnum);
 		if (created != null) {
@@ -107,10 +111,9 @@ public class HGWorldManagement {
 			return ("Loading of " + envEnum.toString() + " world " + name + " has been refused by the server for an unknown reason.");
 		}
 	}
-	
-	
+
 	private String createWorld(Player player, String name, String env) {
-		World.Environment envEnum =  World.Environment.NORMAL;
+		World.Environment envEnum = World.Environment.NORMAL;
 		File worldFile = new File(name + "/" + HGStatics.WORLD_DATA_FILE);
 		if (worldFile.exists()) {
 			msg.warn(player.getName() + " attempted to create a world that already exists [" + name + "].");
@@ -125,10 +128,11 @@ public class HGWorldManagement {
 			return msg.formatInvalidArgs(env, "Invalid environment");
 		}
 
-		msg.sendPositiveMessage(player, ("Creating ") + envEnum.toString() + " world " + name + ". Please wait for completion message (may take a moment).");
+		msg.sendPositiveMessage(player, ("Creating ") + envEnum.toString() + " world " + name
+				+ ". Please wait for completion message (may take a moment).");
 		World created = plugin.getServer().createWorld(name, envEnum);
 		if (created != null) {
-			createWorldEnvFile(player,name,env);
+			createWorldEnvFile(player, name, env);
 			msg.sendPositiveMessage(player, (envEnum.toString() + " world " + name + " has been created and is available."));
 			return null;
 		} else {
@@ -162,42 +166,41 @@ public class HGWorldManagement {
 			}
 		} catch (IOException e) {
 			msg.warn(player.getName() + " System level error creating world environment file for [" + name + "].");
-			return ("Operating system has refused to create world environment file for name" + name +".");
+			return ("Operating system has refused to create world environment file for name" + name + ".");
 		}
 	}
-	
 
 	public String setSpawnLocation(Player player, World world, int x, int y, int z) {
-        CraftWorld cworld=(CraftWorld)world;
-        net.minecraft.server.WorldServer wserver = cworld.getHandle();
-        net.minecraft.server.WorldData wdata = wserver.q;
-        wdata.a(x, y, z);
+		CraftWorld cworld = (CraftWorld) world;
+		net.minecraft.server.WorldServer wserver = cworld.getHandle();
+		net.minecraft.server.WorldData wdata = wserver.q;
+		wdata.a(x, y, z);
 		msg.sendPositiveMessage(player, ("Set spawn point in " + world.getName() + " to (" + x + "," + y + "," + z + ")."));
 		return null;
 	}
-	
+
 	public String getSpawnLocation(Player player, World world) {
 
-        CraftWorld cworld=(CraftWorld)world;
-        net.minecraft.server.WorldServer wserver = cworld.getHandle();
-        int x1 = wserver.q.c();
-        int y1 = wserver.q.d();
-        int z1 = wserver.q.e();
+		CraftWorld cworld = (CraftWorld) world;
+		net.minecraft.server.WorldServer wserver = cworld.getHandle();
+		int x1 = wserver.q.c();
+		int y1 = wserver.q.d();
+		int z1 = wserver.q.e();
 
-		msg.sendPositiveMessage(player, Integer.toString(x1+y1+z1));
+		msg.sendPositiveMessage(player, Integer.toString(x1 + y1 + z1));
 		return null;
 	}
 
-	public String worldLoadList(Player player,String arg){
+	public String worldLoadList(Player player, String arg) {
 		if (arg.equalsIgnoreCase(HGStatics.ADD)) {
 			if (worldly.addAutoLoadWorld(player.getWorld().getName())) {
-				msg.sendPositiveMessage(player, player.getWorld().getName() +" added to autoload list.");
+				msg.sendPositiveMessage(player, player.getWorld().getName() + " added to autoload list.");
 			} else {
 				return ("Unable to add " + player.getWorld().getName() + " to autoload list.  Entry may already exist.");
-			} 
+			}
 		} else if (arg.equalsIgnoreCase(HGStatics.REMOVE)) {
 			if (worldly.deleteAutoLoadWorld(player.getWorld().getName())) {
-				msg.sendPositiveMessage(player, player.getWorld().getName() +" deleted from autoload list.");
+				msg.sendPositiveMessage(player, player.getWorld().getName() + " deleted from autoload list.");
 			} else {
 				return ("Unable to delete " + player.getWorld().getName() + " from autoload list.  Entry may not exist.");
 			}
@@ -208,7 +211,7 @@ public class HGWorldManagement {
 					sb.append(HGStatics.NO_COLOR);
 					sb.append("[");
 					sb.append(HGStatics.WARNING_COLOR);
-					sb.append((String)world);
+					sb.append((String) world);
 					sb.append(HGStatics.NO_COLOR);
 					sb.append("] ");
 				}
@@ -229,12 +232,12 @@ public class HGWorldManagement {
 		}
 		return null;
 	}
-	
+
 	public String loadWorldArray(final Object[] worlds) {
 		for (Object o : worlds) {
-			String name = (String)o;
+			String name = (String) o;
 			if (plugin.getServer().getWorld(name) == null) {
-				World.Environment envEnum =  World.Environment.NORMAL;
+				World.Environment envEnum = World.Environment.NORMAL;
 				File worldFile = new File(name + "/" + HGStatics.WORLD_DATA_FILE);
 				File netherFile = new File(name + "/" + HGStatics.NETHER_ENV_FILE);
 				File normalFile = new File(name + "/" + HGStatics.NORMAL_ENV_FILE);
@@ -242,7 +245,7 @@ public class HGWorldManagement {
 					msg.info("World " + name + " does not exist, could not be autoloaded.");
 					continue;
 				}
-				
+
 				if (netherFile.exists() && normalFile.exists()) {
 					continue;
 				} else if (netherFile.exists()) {
@@ -256,11 +259,38 @@ public class HGWorldManagement {
 				msg.info("Autoloading world " + name + ". Please wait for completion message.");
 				plugin.getServer().createWorld(name, envEnum);
 				msg.info("World " + name + " is loaded and ready for use.");
-			} else { 
+			} else {
 				msg.info("World " + name + " is already loaded.");
 			}
 		}
 		return null;
 
 	}
+
+
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
