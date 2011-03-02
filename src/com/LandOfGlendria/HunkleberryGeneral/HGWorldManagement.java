@@ -7,9 +7,7 @@ import java.util.Iterator;
 import net.minecraft.server.EntityItem;
 import org.bukkit.*;
 import org.bukkit.craftbukkit.CraftWorld;
-import org.bukkit.craftbukkit.entity.CraftHumanEntity;
 import org.bukkit.craftbukkit.entity.CraftItem;
-import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.entity.*;
 import org.bukkit.plugin.Plugin;
 
@@ -25,7 +23,6 @@ public class HGWorldManagement {
 		this.worldly = worldly;
 	}
 
-	@SuppressWarnings("deprecation")
 	public String removeNonPlayerEntities(Player player) {
 		ArrayList<LivingEntity> entityList = (ArrayList<LivingEntity>) player.getWorld().getLivingEntities();
 		int killcount = 0;
@@ -35,9 +32,6 @@ public class HGWorldManagement {
 		   	if (entity instanceof Player) {
 		   		continue;
 		   	}
-//		   	if (entity.isPlayer()) {
-//		   		continue;
-//		   	}
 		   	entity.remove();
 		   	killcount++;
 		}
@@ -262,8 +256,6 @@ public class HGWorldManagement {
 				msg.info("Autoloading world " + name + ". Please wait for completion message.");
 				plugin.getServer().createWorld(name, envEnum);
 				msg.info("World " + name + " is loaded and ready for use.");
-
-				//loadWorldsInThread(name,envEnum);
 			} else { 
 				msg.info("World " + name + " is already loaded.");
 			}

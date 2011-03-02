@@ -1,6 +1,7 @@
 package com.LandOfGlendria.HunkleberryGeneral;
 
 //import java.util.Arrays;
+import java.sql.*;
 import java.util.HashMap;
 
 import org.bukkit.command.Command;
@@ -48,6 +49,38 @@ public class HunkleberryGeneral extends JavaPlugin {
 		listener = new HGPlayerListener(this, msg, bouncer);
 		commandHandler = new HGCommandHandler(this, msg, bouncer);
 		PluginManager pm = getServer().getPluginManager();
+		
+		
+		
+		
+		
+		
+
+
+
+		try {
+			Class.forName("org.sqlite.JDBC");
+			Connection conn =
+				DriverManager.getConnection("jdbc:sqlite:location.sqlite");
+			Statement stat = conn.createStatement();
+			ResultSet rs = stat.executeQuery("select * from people;");
+			while (rs.next()) {
+				System.out.println("name = " + rs.getString("name"));
+				System.out.println("job = " + rs.getString("occupation"));
+			}
+			rs.close();
+			conn.close();
+
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+
+		
 		
 //------------IFDEF 440
 //		pm.registerEvent(org.bukkit.event.Event.Type.PLAYER_COMMAND, listener, org.bukkit.event.Event.Priority.Normal, this);

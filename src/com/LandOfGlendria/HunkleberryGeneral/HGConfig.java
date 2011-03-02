@@ -3,14 +3,9 @@ package com.LandOfGlendria.HunkleberryGeneral;
 import com.nijiko.permissions.PermissionHandler;
 import com.nijikokun.bukkit.Permissions.Permissions;
 import java.io.*;
-//import java.net.MalformedURLException;
-//import java.net.URL;
-//import java.net.URLClassLoader;
 import java.util.*;
 
-import org.bukkit.command.Command;
 import org.bukkit.plugin.Plugin;
-//import java.sql.*;
 
 public class HGConfig {
 

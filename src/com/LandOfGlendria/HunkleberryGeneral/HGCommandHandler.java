@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.util.logging.Logger;
 import org.bukkit.*;
 import org.bukkit.block.Block;
-import org.bukkit.command.Command;
 import org.bukkit.craftbukkit.CraftWorld;
 import org.bukkit.craftbukkit.entity.CraftLivingEntity;
 import org.bukkit.entity.Player;
@@ -36,7 +35,7 @@ public class HGCommandHandler {
 		inventoryManager = new HGInventoryManagement(msg);
 		worldly = new HGWorldlyThings(plugin,msg,config);
 		worldManager = new HGWorldManagement(plugin, msg, worldly);
-		timeManager = new HGTimeManagement(plugin,msg);
+		timeManager = new HGTimeManagement(msg);
 	}
 	
 	public void autoLoadWorlds() {
