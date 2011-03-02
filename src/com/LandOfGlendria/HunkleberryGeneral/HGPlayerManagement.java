@@ -3,7 +3,6 @@ package com.LandOfGlendria.HunkleberryGeneral;
 import java.io.IOException;
 import java.util.*;
 import java.util.logging.Logger;
-
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -18,11 +17,13 @@ public class HGPlayerManagement {
 	private Plugin plugin;
 	private HGMessageManagement msg;
 	private HGBouncer bouncer;
-
-	public HGPlayerManagement(Plugin plugin, HGMessageManagement msg, HGBouncer bouncer) {
+	private static HGLocationDAO locationDAO;
+	public HGPlayerManagement(Plugin plugin, HGMessageManagement msg, HGBouncer bouncer,HGWorldlyThings worldly) {
 		this.plugin = plugin;
 		this.msg = msg;
 		this.bouncer = bouncer;
+		locationDAO = new HGLocationDAO(worldly);
+
 	}
 
 	public Player resolvePlayer(String name) {
@@ -437,7 +438,7 @@ public class HGPlayerManagement {
 				System.currentTimeMillis());
 		
 		String locationKey = owner + "." + locName;
-		HGLocationDAO.put(locationKey, location);
+		locationDAO.put(locationKey, location);
 		msg.sendPositiveMessage(player, "Added sight: " + location.locationName + " in world " + location.worldName + ".");
 		return null;
 	}
@@ -450,8 +451,8 @@ public class HGPlayerManagement {
 			owner = player.getName();
 		}
 
-		String locationKey = owner + "." + locName;
-		HGLocationDAO.remove(locationKey);
+		String locationKey = owner + locName;
+		locationDAO.remove(locationKey);
 		return null;
 	}
 	
@@ -462,9 +463,26 @@ public class HGPlayerManagement {
 		} else {
 			owner = player.getName();
 		}
-		HashSet<HGLocation> locations = HGLocationDAO.getLocationsByOwnerName(owner);
+		HashSet<HGLocation> locations = locationDAO.getLocationsByOwnerName(owner);
 		if (locations.size() > 0) {
 			msg.sendSegmented(player, msg.getLocationList(locations));
+			return null;
+		} else {
+			return ("You have no saved locations.");
+		}
+	}
+	
+	public String saveLocationsByOwner(Player player, boolean anyone) {
+		String owner;
+		if (anyone) {
+			owner = HGStatics.ANYONE;
+		} else {
+			owner = player.getName();
+		}
+		HashSet<HGLocation> locations = locationDAO.getLocationsByOwnerName(owner);
+		if (locations.size() > 0) {
+			locationDAO.saveLocationDataByOwner(locations);
+			msg.sendPositiveMessage(player, "Saving locations: "  + msg.getLocationList(locations));
 			return null;
 		} else {
 			return ("You have no saved locations.");
@@ -478,9 +496,9 @@ public class HGPlayerManagement {
 		} else {
 			owner = player.getName();
 		}
-		String locationKey = owner + "." + name;
+		String locationKey = owner + name;
 
-		HGLocation location = HGLocationDAO.getLocationDataByName(locationKey);
+		HGLocation location = locationDAO.getLocationDataByName(locationKey);
 		if (location != null) {
 			if (plugin.getServer().getWorld(location.worldName) != null) {
 				Location goingTo = new Location(

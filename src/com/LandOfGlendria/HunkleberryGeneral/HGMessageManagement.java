@@ -220,7 +220,7 @@ public class HGMessageManagement {
 				sb.append("[");
 				sb.append(HGStatics.WARNING_COLOR);
 				sb.append("/");
-				sb.append(HGCommandDAO.getCommand(command));
+				sb.append(commandDAO.getCommand(command));
 				sb.append(HGStatics.NO_COLOR);
 				sb.append("] ");
 			}

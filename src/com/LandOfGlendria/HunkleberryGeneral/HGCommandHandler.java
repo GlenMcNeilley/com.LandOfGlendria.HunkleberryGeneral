@@ -29,11 +29,13 @@ public class HGCommandHandler {
 		this.commandDAO = commandDAO;
 		config = HunkleberryGeneral.config;
 		pluginManager = new HGPluginManagement(plugin,msg);
-		playerManager = new HGPlayerManagement(plugin,msg,bouncer);
-		inventoryManager = new HGInventoryManagement(msg);
 		worldly = new HGWorldlyThings(plugin,msg,config);
+		//locationDAO = new HGLocationDAO(worldly);
+		playerManager = new HGPlayerManagement(plugin,msg,bouncer,worldly);
+		inventoryManager = new HGInventoryManagement(msg);
 		worldManager = new HGWorldManagement(plugin, msg, worldly, commandDAO);
 		timeManager = new HGTimeManagement(msg);
+
 	}
 	
 	public void autoLoadWorlds() {
@@ -252,6 +254,8 @@ public class HGCommandHandler {
 				} else {
 					return ("Invalid arguments, location name required.");
 				}
+			} else if (commandArray[1].equalsIgnoreCase("save")) {
+				return playerManager.saveLocationsByOwner(player, anyone);
 			} else if (commandArray[1].equalsIgnoreCase("list")) {
 				return playerManager.sendLocationList(player,anyone);
 			}
@@ -999,7 +1003,7 @@ public class HGCommandHandler {
 						newValue = commandArray[2];
 					}
 					commandDAO.setPermissions(commandToChange,newValue);
-					HGCommandDAO.reloadLookup();
+					commandDAO.reloadLookup();
 					msg.sendPositiveMessage(player,"Set permission string of [" + newValue + "] for command [/" + command + "].");
 					return null;
 				} else {

@@ -21,7 +21,7 @@ public class HGCommandDAO {
 	/**
 	 * @return the resolved command string
 	 */
-	public static String getCommand(HGCommand cmd) {
+	public String getCommand(HGCommand cmd) {
 		if (!(cmd.commandAlias == null) && !cmd.commandAlias.isEmpty()) {
 			return cmd.commandAlias;
 		} else {
@@ -126,7 +126,7 @@ public class HGCommandDAO {
         return lookupName.get(name);
     }
     
-    public static void reloadLookup() {
+    public void reloadLookup() {
     	lookupName.clear();
         for (HGCommand command : HGCommand.values()) {
             lookupName.put(getCommand(command), command);

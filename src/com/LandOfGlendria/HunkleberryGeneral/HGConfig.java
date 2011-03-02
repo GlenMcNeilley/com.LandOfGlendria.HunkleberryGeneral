@@ -113,7 +113,7 @@ public class HGConfig {
 			getPropertiesFromFile(opsOnlyPropertiesFile, opsOnlyProperties,HGStatics.OPSONLY_MESSAGE);
 			getPropertiesFromFile(permissionsPropertiesFile, permissionsProperties,HGStatics.PERMISSIONS_MESSAGE);
 			applyConfigFileChanges();
-			HGCommandDAO.reloadLookup();
+			commandDAO.reloadLookup();
 			saveConfigFileProperties();
 		} catch (IOException e) {
 			msg.severe("Error reading/writing properties files.");
@@ -133,7 +133,7 @@ public class HGConfig {
 			getPropertiesFromFile(opsOnlyPropertiesFile, opsOnlyProperties,HGStatics.OPSONLY_MESSAGE);
 			getPropertiesFromFile(permissionsPropertiesFile, permissionsProperties,HGStatics.PERMISSIONS_MESSAGE);
 			applyConfigFileChanges();
-			HGCommandDAO.reloadLookup();
+			commandDAO.reloadLookup();
 			setCurrentConfigFileProperties();
 			saveConfigFileProperties();
 		} catch (IOException e) {

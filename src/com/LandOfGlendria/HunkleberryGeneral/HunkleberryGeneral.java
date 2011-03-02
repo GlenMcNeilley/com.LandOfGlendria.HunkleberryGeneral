@@ -1,7 +1,5 @@
 package com.LandOfGlendria.HunkleberryGeneral;
 
-//import java.util.Arrays;
-import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 
 import org.bukkit.command.Command;
@@ -122,8 +120,8 @@ public class HunkleberryGeneral extends JavaPlugin {
 		
 		String error;
 		if ((error = commandHandler.handleCommand(player, command, commandArray)) != null) {
-			String helpCommand = HGCommandDAO.getCommand(HGCommand.HG_HELP);
-			msg.sendColorErrorUsage(player, error, HGCommandDAO.getCommand(command), commandDAO.getCommandArgs(command), helpCommand);
+			String helpCommand = commandDAO.getCommand(HGCommand.HG_HELP);
+			msg.sendColorErrorUsage(player, error, commandDAO.getCommand(command), commandDAO.getCommandArgs(command), helpCommand);
 		}
 		return true;
 	}
