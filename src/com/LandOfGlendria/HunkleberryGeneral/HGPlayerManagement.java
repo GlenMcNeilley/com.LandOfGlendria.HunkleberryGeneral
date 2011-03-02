@@ -215,8 +215,8 @@ public class HGPlayerManagement {
 
 	public String getLocation(Player player) {
 		Location loc = player.getLocation();
-		msg.sendPositiveMessage(player, (new StringBuilder("Loc: ")).append(loc.getX()).append(",").append(loc.getY()).append(",").append(loc.getZ())
-				.append(").").toString());
+		msg.sendPositiveMessage(player, (new StringBuilder("Loc: ( ")).append(loc.getBlockX()).append(", ").append(loc.getBlockY()).append(", ").append(loc.getBlockZ())
+				.append(" ).").toString());
 		return null;
 	}
 
@@ -427,7 +427,8 @@ public class HGPlayerManagement {
 		} else {
 			owner = player.getName();
 		}
-
+		int count = locationDAO.getLocationsCountByOwnerName(owner);
+		if (count < 20) {
 		String worldName = player.getWorld().getName();
 		HGLocation location = new HGLocation(owner, locName, worldName, 
 				player.getLocation().getBlockX(),
@@ -440,6 +441,9 @@ public class HGPlayerManagement {
 		String locationKey = owner + "." + locName;
 		locationDAO.put(locationKey, location);
 		msg.sendPositiveMessage(player, "Added sight: " + location.locationName + " in world " + location.worldName + ".");
+		} else {
+			msg.sendNegativeMessage(player,"You have reached an arbritary limit of 20 locations.");
+		}
 		return null;
 	}
 	
@@ -503,9 +507,9 @@ public class HGPlayerManagement {
 			if (plugin.getServer().getWorld(location.worldName) != null) {
 				Location goingTo = new Location(
 						plugin.getServer().getWorld(location.worldName), 
-						location.x,
+						location.x+.5,
 						location.y,
-						location.z,
+						location.z+.5,
 						location.yaw,
 						location.pitch);
 			

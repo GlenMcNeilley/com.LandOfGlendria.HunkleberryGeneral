@@ -19,7 +19,7 @@ public enum HGCommand {
 	SET_COMPASS				("setcompass",		"hg.misc",				true,	"",	true,	"[playerName] [x y z] [here]:default=current world spawn",				"Sets your compass to point to the desired location, [here] indicates the literal string 'here'."),
 	COMPASS					("compass",			"hg.misc",				true,	"",	true,	"",																		"Returns the direction that the player is currently facing."),
 	LOC						("loc",				"hg.loc",				true,	"",	true,	"",																		"Get your current x y z location."),
-	SIGHTS					("sights",			"hg.loc",				true,	"",	true,	"{set|remove|list|save}[name:req. for set|remove]",						"Set, remove, save, or list your private named locations. Be sure to save after setting or removing a location."),
+	SIGHTS					("sights",			"hg.loc",				true,	"",	true,	"{add|remove|list|save}[name:req. for set|remove]",						"Set, remove, save, or list your private named locations. Be sure to save after setting or removing a location."),
 	SEE						("see",				"hg.loc",				true,	"",	true,	"[name:default=home]",													"Go to a set named location. If you have set a location with the name of 'home' you will go there if the name argument is empty."),
 	LEAP					("leap",			"hg.loc",				true,	"",	true,	"[[worldName] [playerName] [x y z]]:default=current world spawn",		"Teleport yourself to specified [player] or [world] or [world,coords] or [coords], in order of precedence, or by default, the world spawn point."),
 	FLING					("fling",			"hg.loc.other",			true,	"",	true,	"{name}[worldName] [playerName] [x y z]:default=current world spawn",	"Teleport player to specified [player] or [world] or [world,coords] or [coords], in order of precedence, or by default, the world spawn point."),

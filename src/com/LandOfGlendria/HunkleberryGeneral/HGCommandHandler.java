@@ -230,7 +230,7 @@ public class HGCommandHandler {
 		}
 
 		if (cmd == HGCommand.LOC) {
-			msg.sendPositiveMessage(player, playerManager.getLocation(player));
+			return playerManager.getLocation(player);
 		}
 		
 		if (cmd == HGCommand.SIGHTS) {
@@ -258,6 +258,8 @@ public class HGCommandHandler {
 				return playerManager.saveLocationsByOwner(player, anyone);
 			} else if (commandArray[1].equalsIgnoreCase("list")) {
 				return playerManager.sendLocationList(player,anyone);
+			} else {
+				return msg.formatInvalidArgs(commandArray[1], "Invalid argument");
 			}
 		}
 		

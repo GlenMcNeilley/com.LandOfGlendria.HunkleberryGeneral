@@ -48,7 +48,7 @@ public class HGLocationDAO {
         return result;
     }
     
-    public static int getLocationsCountByOwnerName(final String name) {
+    public int getLocationsCountByOwnerName(final String name) {
     	int count = 0;
     	for (HGLocation location : lookupName.values()) {
     		if(location.playerName == name) {
