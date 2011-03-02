@@ -111,6 +111,9 @@ commands:
  setworldtype:
   description: 
   usage: 
+ worldloadlist:
+  description: 
+  usage: 
  hg_help:
   description: 
   usage: 

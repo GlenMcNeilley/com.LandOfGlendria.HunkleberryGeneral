@@ -7,6 +7,7 @@ import java.util.logging.Logger;
 
 public class HGCommandDAO {
 
+	//the static result set
     private static final Map<String, HGCommand> lookupName = new HashMap<String, HGCommand>();
 	@SuppressWarnings("unused")
 	private final static Logger log = Logger.getLogger("Minecraft");

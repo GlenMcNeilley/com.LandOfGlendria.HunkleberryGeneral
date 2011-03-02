@@ -360,15 +360,16 @@ public class HGMessageManagement {
 		return sb.toString();
 	}
 
-	public String getLocationList(HashSet<HGLocationData> locations) {
+	public String getLocationList(HashSet<HGLocation> locations) {
 		StringBuilder sb = new StringBuilder();
-		for (HGLocationData location : locations) {
+		for (HGLocation location : locations) {
+			sb.append(HGStatics.NO_COLOR);
 			sb.append("[");
 			sb.append(HGStatics.WARNING_COLOR);
 			sb.append(location.locationName);
+			sb.append(HGStatics.NO_COLOR);
 			sb.append("(");
 			sb.append(location.worldName);
-			sb.append(HGStatics.NO_COLOR);
 			sb.append(")] ");
 		}
 		return sb.toString();

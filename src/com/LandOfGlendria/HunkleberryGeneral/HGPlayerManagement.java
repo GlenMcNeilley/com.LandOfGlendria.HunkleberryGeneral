@@ -428,7 +428,7 @@ public class HGPlayerManagement {
 		}
 
 		String worldName = player.getWorld().getName();
-		HGLocationData location = new HGLocationData(owner, locName, worldName, 
+		HGLocation location = new HGLocation(owner, locName, worldName, 
 				player.getLocation().getBlockX(),
 				player.getLocation().getBlockY(),
 				player.getLocation().getBlockZ(),
@@ -437,7 +437,7 @@ public class HGPlayerManagement {
 				System.currentTimeMillis());
 		
 		String locationKey = owner + "." + locName;
-		HGLocationData.put(locationKey, location);
+		HGLocationDAO.put(locationKey, location);
 		msg.sendPositiveMessage(player, "Added sight: " + location.locationName + " in world " + location.worldName + ".");
 		return null;
 	}
@@ -451,7 +451,7 @@ public class HGPlayerManagement {
 		}
 
 		String locationKey = owner + "." + locName;
-		HGLocationData.remove(locationKey);
+		HGLocationDAO.remove(locationKey);
 		return null;
 	}
 	
@@ -462,7 +462,7 @@ public class HGPlayerManagement {
 		} else {
 			owner = player.getName();
 		}
-		HashSet<HGLocationData> locations = HGLocationData.getLocationsByOwnerName(owner);
+		HashSet<HGLocation> locations = HGLocationDAO.getLocationsByOwnerName(owner);
 		if (locations.size() > 0) {
 			msg.sendSegmented(player, msg.getLocationList(locations));
 			return null;
@@ -480,7 +480,7 @@ public class HGPlayerManagement {
 		}
 		String locationKey = owner + "." + name;
 
-		HGLocationData location = HGLocationData.getLocationDataByName(locationKey);
+		HGLocation location = HGLocationDAO.getLocationDataByName(locationKey);
 		if (location != null) {
 			if (plugin.getServer().getWorld(location.worldName) != null) {
 				Location goingTo = new Location(
