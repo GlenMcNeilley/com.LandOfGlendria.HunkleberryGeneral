@@ -177,6 +177,7 @@ public class HGPlayerManagement {
 				}
 				i += 3;
 				leapLocation = new Location(sender.getWorld(), leapX.intValue(), leapY.intValue(), leapZ.intValue());
+				continue;
 			}
 			return msg.formatInvalidArgs(commandArray[i], "Invalid argument, not a player, world, or complete coordinate triplet");
 		}
@@ -209,7 +210,7 @@ public class HGPlayerManagement {
 		}
 		leapLocation.setPitch(sender.getLocation().getPitch());
 		leapLocation.setYaw(sender.getLocation().getYaw());
-		receiver.teleportTo(leapLocation);
+		receiver.teleport(leapLocation);
 		return null;
 	}
 
@@ -227,7 +228,7 @@ public class HGPlayerManagement {
 		double dY = wserver.q.d();
 		double dZ = wserver.q.e() + .5;
 		msg.sendPositiveMessage(player, "Teleporting to spawn point.");
-		player.teleportTo(new Location(player.getWorld(), dX, dY, dZ));
+		player.teleport(new Location(player.getWorld(), dX, dY, dZ));
 	}
 
 	public String stratum(Player player, int strataToJump) {
@@ -287,7 +288,7 @@ public class HGPlayerManagement {
 			loc.setX(loc.getX() + .5);
 			loc.setZ(loc.getZ() + .5);
 			msg.sendPositiveMessage(player, "Air found, going there.");
-			player.teleportTo(loc);
+			player.teleport(loc);
 			return null;
 		} else {
 			return "Unable to find air.";
@@ -513,7 +514,7 @@ public class HGPlayerManagement {
 						location.yaw,
 						location.pitch);
 			
-				player.teleportTo(goingTo);
+				player.teleport(goingTo);
 				msg.sendPositiveMessage(player, "Going to see " + location.worldName + "." + location.locationName + ".");
 				return null;
 			} else {

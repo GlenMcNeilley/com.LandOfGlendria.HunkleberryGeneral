@@ -5,7 +5,6 @@
 package com.LandOfGlendria.HunkleberryGeneral;
 
 import org.bukkit.Material;
-import org.bukkit.craftbukkit.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -72,21 +71,14 @@ public class HGInventoryManagement {
 	}
 
 	public int getAvailableSpace(Player player, int item) {
-		CraftItemStack inventoryStacks[] = (CraftItemStack[]) player.getInventory().getContents();
-//		CraftItemStack stackToAdd = new CraftItemStack(item, 1);
+		ItemStack inventoryStacks[] = player.getInventory().getContents();
 		int available = 0;
-		int index = 0;
-//		CraftItemStack acraftitemstack[];
-//		int j = (acraftitemstack = inventoryStacks).length;
-		for (CraftItemStack inventoryStack : inventoryStacks) {
-//			CraftItemStack inventoryStack = acraftitemstack[i];
-			if (inventoryStack.getAmount() == 0 && inventoryStack.getType() == Material.AIR) {
-				available += 64; //stackToAdd.getMaxStackSize();
+		for (ItemStack inventoryStack : inventoryStacks) {
+			if (inventoryStack == null) {
+				available += 64;
+			} else if (inventoryStack.getTypeId() == item) {
+				available += 64 - inventoryStack.getAmount();
 			}
-//			else if (inventoryStack.getType() == stackToAdd.getType() && inventoryData == data) {
-//				available += inventoryStack.getMaxStackSize() - inventoryStack.getAmount();
-//			}
-			index++;
 		}
 
 		return available;

@@ -7,6 +7,7 @@ import org.bukkit.plugin.InvalidDescriptionException;
 import org.bukkit.plugin.InvalidPluginException;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
+import org.bukkit.plugin.UnknownDependencyException;
 
 import com.LandOfGlendria.HunkleberryGeneral.HGMessageManagement;
 
@@ -51,8 +52,8 @@ public class HGPluginManagement {
 			pluginInfo.append("] ");
 		}
 		messages[1] = pluginInfo.toString();
+		msg.sendPositiveMessage(player,messages[0]);
 		msg.sendPositiveMessage(player,messages[1]);
-		msg.sendPositiveMessage(player,messages[2]);
 	}
 
 	private String enableInThread(final Plugin plugin) {
@@ -118,6 +119,8 @@ public class HGPluginManagement {
 			return ("Unable to load Plugin: Invalid Plugin");
 		} catch (InvalidDescriptionException e) {
 			return ("Unable to load Plugin: Invalid Plugin Description");
+		} catch (UnknownDependencyException e) {
+			return ("Unable to load Plugin : Unknown dependancy " + e.getMessage());
 		}
 		if (pluginToLoad == null) {
 			return ("Error loading plugin.");

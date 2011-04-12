@@ -576,7 +576,7 @@ public class HGCommandHandler {
 			}
 			if (resolvedPlayer != null) {
 				msg.sendPositiveMessage(player, "Teleporting " + resolvedPlayer.getName() + " to you.");
-				resolvedPlayer.teleportTo(player.getLocation());
+				resolvedPlayer.teleport(player.getLocation());
 				return null;
 			}
 			Player[] players = plugin.getServer().getOnlinePlayers();
@@ -589,13 +589,13 @@ public class HGCommandHandler {
 						if (world == null) {
 							sb.append(toGather.getName());
 							sb.append(" ");
-							toGather.teleportTo(player.getLocation());
+							toGather.teleport(player.getLocation());
 							gathered++;
 						} else {
 							if (player.getWorld().equals(world)) {
 								sb.append(toGather.getName());
 								sb.append(" ");
-								toGather.teleportTo(player.getLocation());
+								toGather.teleport(player.getLocation());
 								gathered++;
 							}
 						}

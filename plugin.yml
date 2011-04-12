@@ -2,11 +2,11 @@ name: HunkleberryGeneral
 
 main: com.LandOfGlendria.HunkleberryGeneral.HunkleberryGeneral
 
-version: 0.70
+version: 0.80
 
 website: TBD
 
-description: Friendly general command plugin.
+description: Friendly general command plugin. Fixed by needaxeo
 
 author: Glen McNeilley
 
