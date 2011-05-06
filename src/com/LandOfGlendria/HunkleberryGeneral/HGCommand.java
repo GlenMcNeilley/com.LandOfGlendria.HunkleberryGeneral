@@ -28,7 +28,7 @@ public enum HGCommand {
 	STRATUM					("strata",			"hg.loc",				true,	"",	true,	"[number:default=0]",													"Move to the nth occurrence of a solid to air transition in the direction of the crosshair."),
 	MOTD					("motd",			"hg.list",				true,	"",	true,	"",																		"Display the current world motd."),
 	SLAY_LIVING				("slay",			"hg.mobs",				true,	"",	true,	"",																		"Remove all non-player living entities from the world."),
-	REMOVE_DROPS			("cleardrops",		"hg.drops",				true,	"",	true,	"",																		"Remove all item drop entities from the world."),
+//	REMOVE_DROPS			("cleardrops",		"hg.drops",				true,	"",	true,	"",																		"Remove all item drop entities from the world."),
 	GET_TIME				("gettime",			"hg.list",				true,	"",	true,	"[playerName:default=self]",											"Display the current world time for your world or the world of the selected player."),
 	SET_TIME				("time",			"hg.time.set",			true,	"",	true,	"[playerName:default=self] [time:default=noon]",						"Set the time of your current world or the current world of the specified player. Values of [ 0 - 24000 | sunrise | noon | sunset | midnight ] are valid for time."),
 	LIST_WORLDS				("listworlds",		"hg.list",				true,	"",	true,	"",																		"List the loaded worlds."),

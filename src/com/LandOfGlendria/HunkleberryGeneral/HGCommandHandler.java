@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.logging.Logger;
 import org.bukkit.*;
 import org.bukkit.block.Block;
-import org.bukkit.craftbukkit.CraftWorld;
 import org.bukkit.craftbukkit.entity.CraftLivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
@@ -199,10 +198,10 @@ public class HGCommandHandler {
 			worldManager.removeNonPlayerEntities(player);
 			return null;
 		}
-		if (cmd == HGCommand.REMOVE_DROPS) {
-			worldManager.removeItemDropEntities(player);
-			return null;
-		}
+//		if (cmd == HGCommand.REMOVE_DROPS) {
+//			worldManager.removeItemDropEntities(player);
+//			return null;
+//		}
 		if (cmd == HGCommand.SET_DISPLAY_NAME) {
 			//first arg must be player name
 			String newName = null;
@@ -366,12 +365,13 @@ public class HGCommandHandler {
 				}
 			}
 			if (location == null) {
-				CraftWorld cworld = (CraftWorld) player.getWorld();
-				net.minecraft.server.WorldServer wserver = cworld.getHandle();
-				locX = wserver.q.c();
-				locY = wserver.q.d();
-				locZ = wserver.q.e();
-				location = new Location(player.getWorld(), locX, locY, locZ);
+				location = player.getWorld().getSpawnLocation();
+//				CraftWorld cworld = (CraftWorld) player.getWorld();
+//				net.minecraft.server.WorldServer wserver = cworld.getHandle();
+//				locX = wserver.q.c();
+//				locY = wserver.q.d();
+//				locZ = wserver.q.e();
+//				location = new Location(player.getWorld(), locX, locY, locZ);
 				msg.sendPositiveMessage(player,"Setting compass target to world spawn point.");
 			}
 			player.setCompassTarget(location);

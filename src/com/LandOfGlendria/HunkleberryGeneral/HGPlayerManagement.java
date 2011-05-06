@@ -3,10 +3,10 @@ package com.LandOfGlendria.HunkleberryGeneral;
 import java.io.IOException;
 import java.util.*;
 import java.util.logging.Logger;
+
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
-import org.bukkit.craftbukkit.CraftWorld;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
@@ -186,12 +186,15 @@ public class HGPlayerManagement {
 			leapWorld = sender.getWorld();
 		}
 		if (leapLocation == null) {
-			CraftWorld cworld = (CraftWorld) leapWorld;
-			net.minecraft.server.WorldServer wserver = cworld.getHandle();
-			leapX = wserver.q.c() + .5;
-			leapY = wserver.q.d();
-			leapZ = wserver.q.e() + .5;
-			leapLocation = new Location(leapWorld, leapX, leapY, leapZ);
+			
+			leapLocation = sender.getWorld().getSpawnLocation();
+			
+//			CraftWorld cworld = (CraftWorld) leapWorld;
+//			net.minecraft.server.WorldServer wserver = cworld.getHandle();
+//			leapX = wserver.q.c() + .5;
+//			leapY = wserver.q.d();
+//			leapZ = wserver.q.e() + .5;
+//			leapLocation = new Location(leapWorld, leapX, leapY, leapZ);
 		} else {
 			leapLocation.setWorld(leapWorld);
 		}
@@ -222,13 +225,18 @@ public class HGPlayerManagement {
 	}
 
 	public void teleportToSpawn(Player player) {
-		CraftWorld cworld = (CraftWorld) player.getWorld();
+/*		CraftWorld cworld = (CraftWorld) player.getWorld();
 		net.minecraft.server.WorldServer wserver = cworld.getHandle();
+		ChunkCoordinates c = wserver.getSpawn();
+		
 		double dX = wserver.q.c() + .5;
 		double dY = wserver.q.d();
-		double dZ = wserver.q.e() + .5;
+		double dZ = wserver.q.e() + .5; */
 		msg.sendPositiveMessage(player, "Teleporting to spawn point.");
-		player.teleport(new Location(player.getWorld(), dX, dY, dZ));
+		
+		player.teleport(player.getWorld().getSpawnLocation());
+		
+//		player.teleport(new Location(player.getWorld(), dX, dY, dZ));
 	}
 
 	public String stratum(Player player, int strataToJump) {
