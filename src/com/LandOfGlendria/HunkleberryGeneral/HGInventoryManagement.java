@@ -51,7 +51,7 @@ public class HGInventoryManagement {
 		int j = (aitemstack = stacks).length;
 		for (int i = 0; i < j; i++) {
 			ItemStack stack = aitemstack[i];
-			if (stack.getAmount() > 0) {
+			if (stack != null && stack.getAmount() > 0) {
 				sb.append("[");
 				sb.append(index+1);
 				sb.append("][");
