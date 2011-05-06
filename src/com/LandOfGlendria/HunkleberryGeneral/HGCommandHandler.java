@@ -198,10 +198,10 @@ public class HGCommandHandler {
 			worldManager.removeNonPlayerEntities(player);
 			return null;
 		}
-//		if (cmd == HGCommand.REMOVE_DROPS) {
-//			worldManager.removeItemDropEntities(player);
-//			return null;
-//		}
+		if (cmd == HGCommand.REMOVE_DROPS) {
+			worldManager.removeItemDropEntities(player);
+			return null;
+		}
 		if (cmd == HGCommand.SET_DISPLAY_NAME) {
 			//first arg must be player name
 			String newName = null;

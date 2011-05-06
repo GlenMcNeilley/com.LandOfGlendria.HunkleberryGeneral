@@ -4,7 +4,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
+
 import org.bukkit.*;
+import org.bukkit.craftbukkit.entity.CraftItem;
 import org.bukkit.entity.*;
 import org.bukkit.plugin.Plugin;
 
@@ -39,25 +41,26 @@ public class HGWorldManagement {
 		return null;
 	}
 
-/*	public String removeItemDropEntities(Player player) {
+	public String removeItemDropEntities(Player player) {
 		ArrayList<Entity> entityList = (ArrayList<Entity>) player.getWorld().getEntities();
 		int killcount = 0;
 		for (Iterator<Entity> iterator = entityList.iterator(); iterator.hasNext();) {
 			Entity entity = (Entity) iterator.next();
-			if (entity.getClass().getName().contains("CraftItem")) {
+			
+			if (entity instanceof CraftItem ) {
 				CraftItem item = (CraftItem) entity;
+//				msg.sendPositiveMessage(player, "Item : " + item.getItemStack().getType().name() + " " + item.getLocation().toString());
 				synchronized (item) {
-					EntityItem entityItem = (EntityItem) item.getHandle();
-					entityItem.C();
+					item.remove();
 				}
 				killcount++;
 			}
 		}
 
-		msg.sendPositiveMessage(player, ("Removed " + killcount + " item entities."));
+		msg.sendPositiveMessage(player, ("Removed " + killcount + " dropped items."));
 		return null;
 	}
-*/
+
 	public String listWorlds(Player player) {
 		msg.sendSegmented(player, msg.getWorldList(player));
 		return null;
