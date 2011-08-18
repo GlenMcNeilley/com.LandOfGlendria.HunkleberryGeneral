@@ -123,12 +123,12 @@ public class HGPlayerManagement {
 			loc = testingBlock.getLocation();
 			loc.setY(height);
 			testingBlock = block.getWorld().getBlockAt(loc);
-			if (HGStatics.DangerBlocks.contains((Byte) ((byte) (testingBlock.getFace(BlockFace.DOWN).getTypeId())))) {
+			if (HGStatics.DangerBlocks.contains((Byte) ((byte) (testingBlock.getRelative(BlockFace.DOWN).getTypeId())))) {
 				return null;
 			}
-			if (!HGStatics.AirBlocks.contains((Byte) ((byte) (testingBlock.getFace(BlockFace.DOWN).getTypeId())))
-					&& !HGStatics.DangerBlocks.contains((Byte) ((byte) (testingBlock.getFace(BlockFace.DOWN).getTypeId())))) {
-				return testingBlock.getFace(BlockFace.UP);
+			if (!HGStatics.AirBlocks.contains((Byte) ((byte) (testingBlock.getRelative(BlockFace.DOWN).getTypeId())))
+					&& !HGStatics.DangerBlocks.contains((Byte) ((byte) (testingBlock.getRelative(BlockFace.DOWN).getTypeId())))) {
+				return testingBlock.getRelative(BlockFace.UP);
 			}
 		}
 
@@ -257,12 +257,12 @@ public class HGPlayerManagement {
 				}
 				if (solidFound && HGStatics.AirBlocks.contains((Byte) ((byte) (block.getTypeId())))) {
 					if (strataCount == strataToJump) {
-						if (!HGStatics.AirBlocks.contains(Byte.valueOf((byte) block.getFace(BlockFace.UP).getTypeId()))) {
+						if (!HGStatics.AirBlocks.contains(Byte.valueOf((byte) block.getRelative(BlockFace.UP).getTypeId()))) {
 							continue;
 						}
 						block = getFloor(block);
 						if (block != null) {
-							loc = block.getFace(BlockFace.DOWN).getLocation();
+							loc = block.getRelative(BlockFace.DOWN).getLocation();
 						}
 						if (loc != null) {
 							break;
@@ -283,7 +283,7 @@ public class HGPlayerManagement {
 				block = blockList.get(i);
 				block = getFloor(block);
 				if (block != null) {
-					loc = block.getFace(BlockFace.DOWN).getLocation();
+					loc = block.getRelative(BlockFace.DOWN).getLocation();
 				}
 				if (loc != null) {
 					break;
