@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.logging.Logger;
 import org.bukkit.*;
 import org.bukkit.block.Block;
-import org.bukkit.craftbukkit.CraftWorld;
 import org.bukkit.craftbukkit.entity.CraftLivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
@@ -366,12 +365,13 @@ public class HGCommandHandler {
 				}
 			}
 			if (location == null) {
-				CraftWorld cworld = (CraftWorld) player.getWorld();
-				net.minecraft.server.WorldServer wserver = cworld.getHandle();
-				locX = wserver.q.c();
-				locY = wserver.q.d();
-				locZ = wserver.q.e();
-				location = new Location(player.getWorld(), locX, locY, locZ);
+				location = player.getWorld().getSpawnLocation();
+//				CraftWorld cworld = (CraftWorld) player.getWorld();
+//				net.minecraft.server.WorldServer wserver = cworld.getHandle();
+//				locX = wserver.q.c();
+//				locY = wserver.q.d();
+//				locZ = wserver.q.e();
+//				location = new Location(player.getWorld(), locX, locY, locZ);
 				msg.sendPositiveMessage(player,"Setting compass target to world spawn point.");
 			}
 			player.setCompassTarget(location);
@@ -576,7 +576,7 @@ public class HGCommandHandler {
 			}
 			if (resolvedPlayer != null) {
 				msg.sendPositiveMessage(player, "Teleporting " + resolvedPlayer.getName() + " to you.");
-				resolvedPlayer.teleportTo(player.getLocation());
+				resolvedPlayer.teleport(player.getLocation());
 				return null;
 			}
 			Player[] players = plugin.getServer().getOnlinePlayers();
@@ -589,13 +589,13 @@ public class HGCommandHandler {
 						if (world == null) {
 							sb.append(toGather.getName());
 							sb.append(" ");
-							toGather.teleportTo(player.getLocation());
+							toGather.teleport(player.getLocation());
 							gathered++;
 						} else {
 							if (player.getWorld().equals(world)) {
 								sb.append(toGather.getName());
 								sb.append(" ");
-								toGather.teleportTo(player.getLocation());
+								toGather.teleport(player.getLocation());
 								gathered++;
 							}
 						}

@@ -471,7 +471,7 @@ public class HGMessageManagement {
 									break;
 								}
 								if (world != null) {
-									player.teleportTo(new Location(world, x, y, z));
+									player.teleport(new Location(world, x, y, z));
 								}
 								newline.delete(beginToken, endToken+1);
 							} else {

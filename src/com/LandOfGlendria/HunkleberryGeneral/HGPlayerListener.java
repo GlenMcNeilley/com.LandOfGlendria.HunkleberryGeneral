@@ -8,6 +8,7 @@ import org.bukkit.entity.Player;
 //import org.bukkit.event.player.PlayerChatEvent;
 //------------ENDIFDEF 440
 import org.bukkit.event.player.PlayerEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerListener;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
@@ -38,7 +39,7 @@ public class HGPlayerListener extends PlayerListener {
 
 	public void onPlayerLogin(PlayerLoginEvent event) {
 		try {
-			Player loggingIn = ((PlayerEvent)event).getPlayer();
+			Player loggingIn = event.getPlayer();
 			String loggingInName = loggingIn.getName();
 
 			if (bouncer.getBounced(loggingInName)) {
@@ -51,13 +52,12 @@ public class HGPlayerListener extends PlayerListener {
 		}
 	}
 	
-	public void onPlayerJoin(PlayerEvent event) {
+	public void onPlayerJoin(PlayerJoinEvent event) {
 		Player player = event.getPlayer();
 		msg.parseMotdForPlayer(player,new String(HGStatics.MOTD_STRING));
 
-		
 		try {
-			Player loggingIn = ((PlayerEvent)event).getPlayer();
+			Player loggingIn = event.getPlayer();
 			String loggingInName = loggingIn.getName();
 			InetSocketAddress loggingInIp = loggingIn.getAddress();
 			InetAddress loggingInIp2 = loggingInIp.getAddress();

@@ -4,9 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
-import net.minecraft.server.EntityItem;
+
 import org.bukkit.*;
-import org.bukkit.craftbukkit.CraftWorld;
 import org.bukkit.craftbukkit.entity.CraftItem;
 import org.bukkit.entity.*;
 import org.bukkit.plugin.Plugin;
@@ -47,17 +46,18 @@ public class HGWorldManagement {
 		int killcount = 0;
 		for (Iterator<Entity> iterator = entityList.iterator(); iterator.hasNext();) {
 			Entity entity = (Entity) iterator.next();
-			if (entity.getClass().getName().contains("CraftItem")) {
+			
+			if (entity instanceof CraftItem ) {
 				CraftItem item = (CraftItem) entity;
+//				msg.sendPositiveMessage(player, "Item : " + item.getItemStack().getType().name() + " " + item.getLocation().toString());
 				synchronized (item) {
-					EntityItem entityItem = (EntityItem) item.getHandle();
-					entityItem.C();
+					item.remove();
 				}
 				killcount++;
 			}
 		}
 
-		msg.sendPositiveMessage(player, ("Removed " + killcount + " item entities."));
+		msg.sendPositiveMessage(player, ("Removed " + killcount + " dropped items."));
 		return null;
 	}
 
@@ -171,21 +171,25 @@ public class HGWorldManagement {
 	}
 
 	public String setSpawnLocation(Player player, World world, int x, int y, int z) {
-		CraftWorld cworld = (CraftWorld) world;
-		net.minecraft.server.WorldServer wserver = cworld.getHandle();
-		net.minecraft.server.WorldData wdata = wserver.q;
-		wdata.a(x, y, z);
+		
+		
+		world.setSpawnLocation(x, y, z);
+		
+//		CraftWorld cworld = (CraftWorld) world;
+//		net.minecraft.server.WorldServer wserver = cworld.getHandle();
+//		net.minecraft.server.WorldData wdata = wserver.q;
+//		wdata.a(x, y, z);
 		msg.sendPositiveMessage(player, ("Set spawn point in " + world.getName() + " to (" + x + "," + y + "," + z + ")."));
 		return null;
 	}
 
 	public String getSpawnLocation(Player player, World world) {
 
-		CraftWorld cworld = (CraftWorld) world;
-		net.minecraft.server.WorldServer wserver = cworld.getHandle();
-		int x1 = wserver.q.c();
-		int y1 = wserver.q.d();
-		int z1 = wserver.q.e();
+		
+		Location location = world.getSpawnLocation();			
+		int x1 = location.getBlockX();
+		int y1 = location.getBlockY();
+		int z1 = location.getBlockZ();
 
 		msg.sendPositiveMessage(player, Integer.toString(x1 + y1 + z1));
 		return null;

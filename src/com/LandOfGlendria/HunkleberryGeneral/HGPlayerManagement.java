@@ -3,10 +3,10 @@ package com.LandOfGlendria.HunkleberryGeneral;
 import java.io.IOException;
 import java.util.*;
 import java.util.logging.Logger;
+
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
-import org.bukkit.craftbukkit.CraftWorld;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
@@ -123,12 +123,12 @@ public class HGPlayerManagement {
 			loc = testingBlock.getLocation();
 			loc.setY(height);
 			testingBlock = block.getWorld().getBlockAt(loc);
-			if (HGStatics.DangerBlocks.contains((Byte) ((byte) (testingBlock.getFace(BlockFace.DOWN).getTypeId())))) {
+			if (HGStatics.DangerBlocks.contains((Byte) ((byte) (testingBlock.getRelative(BlockFace.DOWN).getTypeId())))) {
 				return null;
 			}
-			if (!HGStatics.AirBlocks.contains((Byte) ((byte) (testingBlock.getFace(BlockFace.DOWN).getTypeId())))
-					&& !HGStatics.DangerBlocks.contains((Byte) ((byte) (testingBlock.getFace(BlockFace.DOWN).getTypeId())))) {
-				return testingBlock.getFace(BlockFace.UP);
+			if (!HGStatics.AirBlocks.contains((Byte) ((byte) (testingBlock.getRelative(BlockFace.DOWN).getTypeId())))
+					&& !HGStatics.DangerBlocks.contains((Byte) ((byte) (testingBlock.getRelative(BlockFace.DOWN).getTypeId())))) {
+				return testingBlock.getRelative(BlockFace.UP);
 			}
 		}
 
@@ -177,6 +177,7 @@ public class HGPlayerManagement {
 				}
 				i += 3;
 				leapLocation = new Location(sender.getWorld(), leapX.intValue(), leapY.intValue(), leapZ.intValue());
+				continue;
 			}
 			return msg.formatInvalidArgs(commandArray[i], "Invalid argument, not a player, world, or complete coordinate triplet");
 		}
@@ -185,12 +186,15 @@ public class HGPlayerManagement {
 			leapWorld = sender.getWorld();
 		}
 		if (leapLocation == null) {
-			CraftWorld cworld = (CraftWorld) leapWorld;
-			net.minecraft.server.WorldServer wserver = cworld.getHandle();
-			leapX = wserver.q.c() + .5;
-			leapY = wserver.q.d();
-			leapZ = wserver.q.e() + .5;
-			leapLocation = new Location(leapWorld, leapX, leapY, leapZ);
+			
+			leapLocation = sender.getWorld().getSpawnLocation();
+			
+//			CraftWorld cworld = (CraftWorld) leapWorld;
+//			net.minecraft.server.WorldServer wserver = cworld.getHandle();
+//			leapX = wserver.q.c() + .5;
+//			leapY = wserver.q.d();
+//			leapZ = wserver.q.e() + .5;
+//			leapLocation = new Location(leapWorld, leapX, leapY, leapZ);
 		} else {
 			leapLocation.setWorld(leapWorld);
 		}
@@ -209,7 +213,7 @@ public class HGPlayerManagement {
 		}
 		leapLocation.setPitch(sender.getLocation().getPitch());
 		leapLocation.setYaw(sender.getLocation().getYaw());
-		receiver.teleportTo(leapLocation);
+		receiver.teleport(leapLocation);
 		return null;
 	}
 
@@ -221,13 +225,18 @@ public class HGPlayerManagement {
 	}
 
 	public void teleportToSpawn(Player player) {
-		CraftWorld cworld = (CraftWorld) player.getWorld();
+/*		CraftWorld cworld = (CraftWorld) player.getWorld();
 		net.minecraft.server.WorldServer wserver = cworld.getHandle();
+		ChunkCoordinates c = wserver.getSpawn();
+		
 		double dX = wserver.q.c() + .5;
 		double dY = wserver.q.d();
-		double dZ = wserver.q.e() + .5;
+		double dZ = wserver.q.e() + .5; */
 		msg.sendPositiveMessage(player, "Teleporting to spawn point.");
-		player.teleportTo(new Location(player.getWorld(), dX, dY, dZ));
+		
+		player.teleport(player.getWorld().getSpawnLocation());
+		
+//		player.teleport(new Location(player.getWorld(), dX, dY, dZ));
 	}
 
 	public String stratum(Player player, int strataToJump) {
@@ -248,12 +257,12 @@ public class HGPlayerManagement {
 				}
 				if (solidFound && HGStatics.AirBlocks.contains((Byte) ((byte) (block.getTypeId())))) {
 					if (strataCount == strataToJump) {
-						if (!HGStatics.AirBlocks.contains(Byte.valueOf((byte) block.getFace(BlockFace.UP).getTypeId()))) {
+						if (!HGStatics.AirBlocks.contains(Byte.valueOf((byte) block.getRelative(BlockFace.UP).getTypeId()))) {
 							continue;
 						}
 						block = getFloor(block);
 						if (block != null) {
-							loc = block.getFace(BlockFace.DOWN).getLocation();
+							loc = block.getRelative(BlockFace.DOWN).getLocation();
 						}
 						if (loc != null) {
 							break;
@@ -274,7 +283,7 @@ public class HGPlayerManagement {
 				block = blockList.get(i);
 				block = getFloor(block);
 				if (block != null) {
-					loc = block.getFace(BlockFace.DOWN).getLocation();
+					loc = block.getRelative(BlockFace.DOWN).getLocation();
 				}
 				if (loc != null) {
 					break;
@@ -287,7 +296,7 @@ public class HGPlayerManagement {
 			loc.setX(loc.getX() + .5);
 			loc.setZ(loc.getZ() + .5);
 			msg.sendPositiveMessage(player, "Air found, going there.");
-			player.teleportTo(loc);
+			player.teleport(loc);
 			return null;
 		} else {
 			return "Unable to find air.";
@@ -513,7 +522,7 @@ public class HGPlayerManagement {
 						location.yaw,
 						location.pitch);
 			
-				player.teleportTo(goingTo);
+				player.teleport(goingTo);
 				msg.sendPositiveMessage(player, "Going to see " + location.worldName + "." + location.locationName + ".");
 				return null;
 			} else {

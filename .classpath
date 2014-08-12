@@ -2,10 +2,9 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
-	<classpathentry kind="lib" path="C:/Users/Home-BR/workspace/jars/FakePermissions.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Home-BR/workspace/jars/GroupManager.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Home-BR/workspace/jars/bukkit.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Home-BR/workspace/jars/craftbukkit.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Home-BR/workspace/jars/sqlitejdbc-v056.jar"/>
+	<classpathentry kind="lib" path="C:/Users/michael/workspace/jars/FakePermissions.jar"/>
+	<classpathentry kind="lib" path="C:/Users/michael/workspace/jars/GroupManager.jar"/>
+	<classpathentry kind="lib" path="C:/Users/michael/workspace/jars/craftbukkit.jar"/>
+	<classpathentry kind="lib" path="C:/Users/michael/workspace/MOBAC/lib/sqlitejdbc-v056.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
